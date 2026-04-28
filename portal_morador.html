@@ -537,10 +537,11 @@ document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click
 //  INIT
 // ═══════════════════════════════════════════════
 (function(){
-  try{
-    const saved=localStorage.getItem('aluguel_supabase');
-    if(saved){ const c=JSON.parse(saved); SB_URL=c.url; SB_KEY=c.key; document.getElementById('setup-overlay').style.display='none'; }
-  }catch(e){}
+  // Credenciais fixas — não precisa configurar
+  SB_URL = 'https://gdkzwtzqrzgsmkdvnvkm.supabase.co';
+  SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdka3p3dHpxcnpnc21rZHZudmttIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODU2NjUsImV4cCI6MjA5Mjk2MTY2NX0.iPg-B1CGLMAiJS83i5RMLgo-XiH_cImzycMRV5ZdnXQ';
+  localStorage.setItem('aluguel_supabase', JSON.stringify({url: SB_URL, key: SB_KEY}));
+  document.getElementById('setup-overlay').style.display='none';
 })();
 </script>
 </body>
