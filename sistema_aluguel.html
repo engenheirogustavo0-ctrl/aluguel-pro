@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AluguelPRO — Gestão de Aluguéis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: #2e2e2e;
+    --accent: #c8f452;
+    --accent2: #7fff6e;
+    --text: #f0f0f0;
+    --muted: #888;
+    --danger: #ff5f5f;
+    --warn: #ffb347;
+    --info: #60b4ff;
+    --success: #7fff6e;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+  }
+
+  /* SIDEBAR */
+  #sidebar {
+    width: 230px;
+    min-height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 28px 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    padding: 0 24px 28px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
+  .nav { padding: 16px 12px; flex: 1; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--muted);
+    transition: all 0.18s;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #0f0f0f; font-weight: 500; }
+  .nav-item .icon { font-size: 17px; width: 22px; text-align: center; }
+  .sidebar-footer {
+    padding: 18px 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* MAIN */
+  #main {
+    margin-left: 230px;
+    flex: 1;
+    min-height: 100vh;
+    padding: 36px 40px;
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .page-sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* CARDS RESUMO */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .stat-card.green::before { background: var(--accent); }
+  .stat-card.blue::before { background: var(--info); }
+  .stat-card.red::before { background: var(--danger); }
+  .stat-card.warn::before { background: var(--warn); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; }
+  .stat-value.green { color: var(--accent); }
+  .stat-value.blue { color: var(--info); }
+  .stat-value.red { color: var(--danger); }
+  .stat-value.warn { color: var(--warn); }
+
+  /* BOTÃO PRIMÁRIO */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.18s;
+  }
+  .btn-primary { background: var(--accent); color: #0f0f0f; }
+  .btn-primary:hover { background: #d9ff6a; transform: translateY(-1px); }
+  .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn-danger:hover { background: var(--danger); color: #fff; }
+  .btn-sm { padding: 6px 13px; font-size: 13px; }
+
+  /* TABELA */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .table-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    font-weight: 500;
+    padding: 12px 24px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+  tbody td { padding: 14px 24px; font-size: 14px; }
+  .code-badge {
+    font-family: monospace;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--accent);
+  }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .badge-pago { background: rgba(127,255,110,0.12); color: var(--success); }
+  .badge-pendente { background: rgba(255,179,71,0.12); color: var(--warn); }
+  .badge-atrasado { background: rgba(255,95,95,0.12); color: var(--danger); }
+  .badge-ativo { background: rgba(96,180,255,0.12); color: var(--info); }
+  .badge-inativo { background: rgba(136,136,136,0.12); color: var(--muted); }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 520px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.22s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-title { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 700; }
+  .modal-close {
+    background: none; border: none; color: var(--muted);
+    font-size: 20px; cursor: pointer; line-height: 1;
+    padding: 4px 8px; border-radius: 6px;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-body { padding: 26px; }
+  .modal-footer {
+    padding: 18px 26px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* FORMULÁRIO */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-row.single { grid-template-columns: 1fr; }
+  .form-row.triple { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .form-control {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.18s;
+    width: 100%;
+  }
+  .form-control:focus { border-color: var(--accent); }
+  .form-control option { background: var(--surface2); }
+  select.form-control { cursor: pointer; }
+
+  /* SEARCH */
+  .search-box {
+    position: relative;
+    display: inline-block;
+  }
+  .search-box input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px 8px 36px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    width: 220px;
+    transition: border-color 0.18s;
+  }
+  .search-box input:focus { border-color: var(--accent); }
+  .search-box::before {
+    content: '🔍';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  /* PÁGINAS */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; }
+  .tab {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--muted);
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab.active { background: var(--accent); color: #0f0f0f; }
+  .tab:not(.active):hover { background: var(--surface2); color: var(--text); }
+
+  /* COMPROVANTE */
+  .comprovante {
+    background: #fff;
+    color: #111;
+    border-radius: var(--radius);
+    padding: 30px;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .comprovante-header { text-align: center; border-bottom: 2px solid #111; padding-bottom: 16px; margin-bottom: 20px; }
+  .comprovante-header h2 { font-family: 'Syne', sans-serif; font-size: 20px; }
+  .comprovante-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+  .comprovante-row strong { font-weight: 600; }
+  .comprovante-total { border-top: 2px solid #111; margin-top: 16px; padding-top: 16px; font-size: 18px; font-weight: 700; display: flex; justify-content: space-between; }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty .icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* TOAST */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--accent);
+    color: #0f0f0f;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+
+  .divider { height: 1px; background: var(--border); margin: 20px 0; }
+  .text-muted { color: var(--muted); font-size: 13px; }
+
+  /* Painel de inadimplentes */
+  .alert-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+    background: rgba(255,95,95,0.07);
+    border: 1px solid rgba(255,95,95,0.2);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+  }
+  .alert-row .info { font-size: 14px; }
+  .alert-row .dias { font-size: 12px; color: var(--danger); font-weight: 600; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+
+  /* CONFIGURAÇÕES */
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .config-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .config-card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .config-card-icon {
+    width: 36px; height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; background: var(--surface2);
+  }
+  .config-card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; }
+  .config-card-body { padding: 24px; }
+  .config-card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+  .pix-tipo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .pix-tipo-btn {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; cursor: pointer; text-align: center; transition: all 0.18s;
+  }
+  .pix-tipo-btn:hover { border-color: var(--accent); color: var(--text); }
+  .pix-tipo-btn.selected { border-color: var(--accent); background: rgba(200,244,82,0.08); color: var(--accent); font-weight: 500; }
+  .pix-preview {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px 20px; margin-top: 20px;
+  }
+  .pix-preview-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 12px; }
+  .pix-preview-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; align-items: center; }
+  .pix-preview-row:last-child { margin-bottom: 0; }
+  .pix-preview-key { color: var(--muted); }
+  .pix-preview-val { color: var(--accent); font-weight: 500; font-family: monospace; font-size: 13px; }
+  .pix-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 12px; }
+  .pix-status-ok { background: rgba(127,255,110,0.12); color: var(--success); }
+  .pix-status-empty { background: rgba(255,179,71,0.12); color: var(--warn); }
+  .multa-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .multa-row:last-child { border-bottom: none; }
+  .multa-label { font-size: 14px; }
+  .multa-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .multa-input-wrap { display: flex; align-items: center; gap: 6px; }
+  .multa-input {
+    width: 80px; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 7px 10px; color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: right; outline: none;
+  }
+  .multa-input:focus { border-color: var(--accent); }
+  .multa-unit { font-size: 13px; color: var(--muted); }
+
+  /* CONFIGURAÇÕES */
+  .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .config-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .config-card-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .config-card-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 18px; background: var(--surface2); }
+  .config-card-title { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; }
+  .config-card-body { padding: 24px; }
+  .config-card-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  .pix-tipo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .pix-tipo-btn { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface2); color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; text-align: center; transition: all 0.18s; }
+  .pix-tipo-btn:hover { border-color: var(--accent); color: var(--text); }
+  .pix-tipo-btn.selected { border-color: var(--accent); background: rgba(200,244,82,0.08); color: var(--accent); font-weight: 500; }
+  .pix-preview { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; margin-top: 20px; }
+  .pix-preview-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 12px; }
+  .pix-preview-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; align-items: center; }
+  .pix-preview-row:last-child { margin-bottom: 0; }
+  .pix-preview-key { color: var(--muted); }
+  .pix-preview-val { color: var(--accent); font-weight: 500; font-family: monospace; font-size: 13px; max-width: 55%; text-align: right; word-break: break-all; }
+  .pix-status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 12px; }
+  .pix-status-ok { background: rgba(127,255,110,0.12); color: var(--success); }
+  .pix-status-empty { background: rgba(255,179,71,0.12); color: var(--warn); }
+  .multa-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .multa-row:last-child { border-bottom: none; }
+  .multa-label { font-size: 14px; }
+  .multa-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .multa-input-wrap { display: flex; align-items: center; gap: 6px; }
+  .multa-input { width: 80px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 7px 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; text-align: right; outline: none; }
+  .multa-input:focus { border-color: var(--accent); }
+  .multa-unit { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="logo">Aluguel<span>PRO</span></div>
+  <div class="nav">
+    <button class="nav-item active" onclick="goTo('dashboard')">
+      <span class="icon">◈</span> Dashboard
+    </button>
+    <button class="nav-item" onclick="goTo('clientes')">
+      <span class="icon">👤</span> Clientes
+    </button>
+    <button class="nav-item" onclick="goTo('imoveis')">
+      <span class="icon">🏠</span> Imóveis
+    </button>
+    <button class="nav-item" onclick="goTo('pagamentos')">
+      <span class="icon">💳</span> Pagamentos
+    </button>
+    <button class="nav-item" onclick="goTo('relatorios')">
+      <span class="icon">📊</span> Relatórios
+    </button>
+    <button class="nav-item" onclick="goTo('configuracoes')">
+      <span class="icon">⚙️</span> Configurações
+    </button>
+  </div>
+  <div class="sidebar-footer">AluguelPRO v1.0<br>Gestão simplificada</div>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+
+  <!-- ===== DASHBOARD ===== -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="dash-date"></div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card green">
+        <div class="stat-label">Contratos Ativos</div>
+        <div class="stat-value green" id="stat-ativos">0</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Pagamentos em Dia</div>
+        <div class="stat-value blue" id="stat-dia">0</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-label">Pendentes</div>
+        <div class="stat-value warn" id="stat-pend">0</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-label">Atrasados</div>
+        <div class="stat-value red" id="stat-atr">0</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">💰 Recebimentos do Mês</div>
+        </div>
+        <div style="padding:20px;">
+          <div style="font-family:Syne,sans-serif;font-size:32px;font-weight:700;color:var(--accent)" id="dash-recebido">R$ 0,00</div>
+          <div class="text-muted" style="margin-top:4px">Total arrecadado no mês atual</div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px">
+            <span class="text-muted">A receber</span>
+            <span id="dash-areceber" style="color:var(--warn)">R$ 0,00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;">
+            <span class="text-muted">Total previsto</span>
+            <span id="dash-previsto" style="color:var(--text)">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header">
+          <div class="table-title">⚠️ Inadimplentes</div>
+        </div>
+        <div style="padding:16px 20px;" id="dash-inadimplentes">
+          <div class="empty"><div class="icon">✅</div><p>Sem inadimplentes!</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CLIENTES ===== -->
+  <div id="page-clientes" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Clientes</div>
+        <div class="page-sub">Cadastro e gestão de moradores</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="search-box"><input type="text" id="busca-clientes" placeholder="Buscar cliente..." oninput="renderClientes()"></div>
+        <button class="btn btn-primary" onclick="abrirModalCliente()">+ Novo Cliente</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-clientes"></tbody>
+      </table>
+      <div id="empty-clientes" class="empty" style="display:none">
+        <div class="icon">👤</div><p>Nenhum cliente cadastrado ainda.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== IMÓVEIS ===== -->
+  <div id="page-imoveis" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Imóveis</div>
+        <div class="page-sub">Cadastro de propriedades e vínculos</div>
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="search-box"><input type="text" id="busca-imoveis" placeholder="Buscar imóvel..." oninput="renderImoveis()"></div>
+        <button class="btn btn-primary" onclick="abrirModalImovel()">+ Novo Imóvel</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Identificação</th><th>Endereço</th><th>Morador</th><th>Aluguel</th><th>Vencimento</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-imoveis"></tbody>
+      </table>
+      <div id="empty-imoveis" class="empty" style="display:none">
+        <div class="icon">🏠</div><p>Nenhum imóvel cadastrado ainda.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PAGAMENTOS ===== -->
+  <div id="page-pagamentos" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Pagamentos</div>
+        <div class="page-sub">Registre e acompanhe mensalidades</div>
+      </div>
+      <button class="btn btn-primary" onclick="abrirModalPagamento()">+ Registrar Pagamento</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" onclick="filtrarPag('todos',this)">Todos</button>
+      <button class="tab" onclick="filtrarPag('pago',this)">Pagos</button>
+      <button class="tab" onclick="filtrarPag('pendente',this)">Pendentes</button>
+      <button class="tab" onclick="filtrarPag('atrasado',this)">Atrasados</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mês/Ano</th><th>Imóvel</th><th>Morador</th><th>Valor</th><th>Vencimento</th><th>Data Pag.</th><th>Forma</th><th>Status</th><th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-pagamentos"></tbody>
+      </table>
+      <div id="empty-pagamentos" class="empty" style="display:none">
+        <div class="icon">💳</div><p>Nenhum registro de pagamento.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CONFIGURAÇÕES ===== -->
+  <div id="page-configuracoes" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Configurações</div>
+        <div class="page-sub">Gerencie dados do proprietário e regras financeiras</div>
+      </div>
+    </div>
+    <div class="config-grid">
+      <!-- CARD PIX -->
+      <div class="config-card">
+        <div class="config-card-header">
+          <div class="config-card-icon">💠</div>
+          <div>
+            <div class="config-card-title">Chave Pix</div>
+            <div class="text-muted" style="font-size:12px;margin-top:2px">Recebimento dos moradores</div>
+          </div>
+        </div>
+        <div class="config-card-body">
+          <div class="form-row single">
+            <div class="form-group">
+              <label class="form-label">Nome do Recebedor *</label>
+              <input class="form-control" id="cfg-pix-nome" placeholder="Nome completo ou razão social" oninput="atualizarPreviewPix()">
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label class="form-label">Banco / Instituição</label>
+              <input class="form-control" id="cfg-pix-banco" placeholder="Ex: Nubank, Banco do Brasil..." oninput="atualizarPreviewPix()">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Tipo de Chave Pix *</label>
+            <div class="pix-tipo-grid">
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('cpf',this)">📄 CPF/CNPJ</button>
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('telefone',this)">📱 Telefone</button>
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('email',this)">✉️ E-mail</button>
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('aleatoria',this)">🔑 Aleatória</button>
+            </div>
+          </div>
+          <div class="form-row single">
+            <div class="form-group">
+              <label class="form-label" id="cfg-pix-chave-label">Chave Pix *</label>
+              <input class="form-control" id="cfg-pix-chave" placeholder="Digite a chave Pix" oninput="atualizarPreviewPix()">
+            </div>
+          </div>
+          <div class="pix-preview">
+            <div class="pix-preview-title">Pré-visualização — como o morador verá</div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Nome</span><span class="pix-preview-val" id="prev-nome">—</span></div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Banco</span><span class="pix-preview-val" id="prev-banco">—</span></div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Tipo</span><span class="pix-preview-val" id="prev-tipo">—</span></div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Chave</span><span class="pix-preview-val" id="prev-chave">—</span></div>
+            <div id="prev-status"></div>
+          </div>
+        </div>
+        <div class="config-card-footer">
+          <button class="btn btn-secondary" onclick="carregarConfigPix()">Cancelar</button>
+          <button class="btn btn-primary" onclick="salvarConfigPix()">💾 Salvar Chave Pix</button>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-icon">📐</div>
+            <div>
+              <div class="config-card-title">Regras de Cobrança</div>
+              <div class="text-muted" style="font-size:12px;margin-top:2px">Multas e juros por atraso</div>
+            </div>
+          </div>
+          <div class="config-card-body">
+            <div class="multa-row">
+              <div>
+                <div class="multa-label">Multa por atraso</div>
+                <div class="multa-sub">Percentual aplicado uma única vez ao atrasar</div>
+              </div>
+              <div class="multa-input-wrap">
+                <input class="multa-input" id="cfg-multa" type="number" min="0" max="100" step="0.1" value="2">
+                <span class="multa-unit">%</span>
+              </div>
+            </div>
+            <div class="multa-row">
+              <div>
+                <div class="multa-label">Juros ao dia</div>
+                <div class="multa-sub">Percentual acumulado por dia de atraso</div>
+              </div>
+              <div class="multa-input-wrap">
+                <input class="multa-input" id="cfg-juros" type="number" min="0" max="10" step="0.001" value="0.033">
+                <span class="multa-unit">%/dia</span>
+              </div>
+            </div>
+          </div>
+          <div class="config-card-footer">
+            <button class="btn btn-primary" onclick="salvarConfigFinanceira()">💾 Salvar Regras</button>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <div class="config-card-header">
+            <div class="config-card-icon">🔗</div>
+            <div>
+              <div class="config-card-title">Portal do Morador</div>
+              <div class="text-muted" style="font-size:12px;margin-top:2px">Status da integração</div>
+            </div>
+          </div>
+          <div class="config-card-body">
+            <div id="integracao-status"></div>
+            <div style="margin-top:16px;padding:14px 16px;background:var(--surface2);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);line-height:1.6">
+              💡 O portal do morador lê automaticamente os dados cadastrados aqui. Abra os dois arquivos no mesmo navegador para que a integração funcione em tempo real.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RELATÓRIOS ===== -->
+  <div id="page-relatorios" class="page">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Relatórios</div>
+        <div class="page-sub">Visão geral do portfólio</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">🏆 Situação dos Imóveis</div></div>
+        <div style="padding:20px;" id="rel-imoveis"></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">📋 Histórico de Pagamentos</div></div>
+        <div style="padding:20px;" id="rel-historico"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-cliente-title">Novo Cliente</div>
+      <button class="modal-close" onclick="fecharModal('modal-cliente')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-cliente-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nome Completo *</label>
+          <input class="form-control" id="c-nome" placeholder="Ex: João da Silva">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CPF *</label>
+          <input class="form-control" id="c-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">RG</label>
+          <input class="form-control" id="c-rg" placeholder="00.000.000-0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data de Nascimento * <span style="color:var(--muted);font-weight:400">(senha do portal)</span></label>
+          <input class="form-control" id="c-datanasc" type="date">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Telefone *</label>
+          <input class="form-control" id="c-telefone" placeholder="(85) 99999-9999" maxlength="15" oninput="maskTel(this)">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input class="form-control" id="c-email" type="email" placeholder="email@exemplo.com">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" id="c-status">
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarCliente()">Salvar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMÓVEL -->
+<div class="modal-overlay" id="modal-imovel">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-imovel-title">Novo Imóvel</div>
+      <button class="modal-close" onclick="fecharModal('modal-imovel')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-imovel-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Identificação *</label>
+          <input class="form-control" id="i-id" placeholder="Ex: Casa A, Ap. 02">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bairro *</label>
+          <input class="form-control" id="i-bairro" placeholder="Ex: Centro">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Rua *</label>
+          <input class="form-control" id="i-rua" placeholder="Nome da rua">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Número *</label>
+          <input class="form-control" id="i-numero" placeholder="Ex: 123">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Morador (Código do Cliente)</label>
+          <select class="form-control" id="i-cliente">
+            <option value="">— Sem morador —</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Valor do Aluguel (R$) *</label>
+          <input class="form-control" id="i-valor" type="number" min="0" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Dia de Vencimento *</label>
+          <input class="form-control" id="i-vencimento" type="number" min="1" max="31" placeholder="Ex: 10">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-imovel')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarImovel()">Salvar Imóvel</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PAGAMENTO -->
+<div class="modal-overlay" id="modal-pagamento">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Registrar Pagamento</div>
+      <button class="modal-close" onclick="fecharModal('modal-pagamento')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Imóvel *</label>
+          <select class="form-control" id="p-imovel" onchange="preencherDadosPagamento()">
+            <option value="">Selecione o imóvel</option>
+          </select>
+        </div>
+      </div>
+      <div id="p-info-box" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;font-size:13px;color:var(--muted)"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Mês de Referência *</label>
+          <input class="form-control" id="p-mes" type="month">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data do Pagamento *</label>
+          <input class="form-control" id="p-data" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Valor Pago (R$) *</label>
+          <input class="form-control" id="p-valor" type="number" min="0" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Forma de Pagamento *</label>
+          <select class="form-control" id="p-forma">
+            <option value="Pix">Pix</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="Boleto">Boleto</option>
+            <option value="Transferência">Transferência</option>
+            <option value="Cartão">Cartão</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-pagamento')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarPagamento()">✔ Confirmar Pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL COMPROVANTE -->
+<div class="modal-overlay" id="modal-comprovante">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Comprovante de Pagamento</div>
+      <button class="modal-close" onclick="fecharModal('modal-comprovante')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="comprovante-content"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-comprovante')">Fechar</button>
+      <button class="btn btn-primary" onclick="imprimirComprovante()">🖨 Imprimir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ===== DADOS =====
+let db = {
+  clientes: [],
+  imoveis: [],
+  pagamentos: [],
+  nextCliente: 1,
+  nextImovel: 1,
+  nextPag: 1
+};
+
+// Carregar do localStorage
+function carregar() {
+  try {
+    const saved = localStorage.getItem('aluguel_pro_db');
+    if (saved) db = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function salvar() {
+  localStorage.setItem('aluguel_pro_db', JSON.stringify(db));
+}
+
+// ===== NAVEGAÇÃO =====
+function goTo(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick').includes(page)) n.classList.add('active');
+  });
+  if (page === 'dashboard') renderDashboard();
+  if (page === 'clientes') renderClientes();
+  if (page === 'imoveis') renderImoveis();
+  if (page === 'pagamentos') renderPagamentos();
+  if (page === 'relatorios') renderRelatorios();
+  if (page === 'configuracoes') { carregarConfigPix(); carregarConfigFinanceira(); renderStatusIntegracao(); }
+}
+
+// ===== MODAIS =====
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Fecha ao clicar fora
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// ===== TOAST =====
+function toast(msg, tipo = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = tipo === 'err' ? 'var(--danger)' : 'var(--accent)';
+  t.style.color = tipo === 'err' ? '#fff' : '#0f0f0f';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ===== MASKS =====
+function maskCPF(i) {
+  let v = i.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  i.value = v;
+}
+function maskTel(i) {
+  let v = i.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2');
+  i.value = v;
+}
+
+// ===== HELPERS =====
+function fmtMoeda(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtMes(m) {
+  if (!m) return '—';
+  const [y,mo] = m.split('-');
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return meses[parseInt(mo)-1] + '/' + y;
+}
+function fmtData(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+function clienteNome(cod) {
+  const c = db.clientes.find(x => x.codigo === cod);
+  return c ? c.nome : '—';
+}
+function imovelNome(id) {
+  const i = db.imoveis.find(x => x.id === id);
+  return i ? i.identificacao : '—';
+}
+
+function statusPagamento(pag) {
+  if (pag.dataPag) return 'pago';
+  // Verificar se está atrasado
+  const hoje = new Date();
+  const mesRef = pag.mesRef; // ex: "2025-04"
+  const [y,m] = mesRef.split('-').map(Number);
+  const imovel = db.imoveis.find(x => x.id === pag.imovelId);
+  const diaVenc = imovel ? imovel.vencimento : 10;
+  const vencimento = new Date(y, m-1, diaVenc);
+  return hoje > vencimento ? 'atrasado' : 'pendente';
+}
+
+function calcularMulta(pag) {
+  if (pag.dataPag) return 0;
+  const hoje = new Date();
+  const [y,m] = pag.mesRef.split('-').map(Number);
+  const imovel = db.imoveis.find(x => x.id === pag.imovelId);
+  const diaVenc = imovel ? imovel.vencimento : 10;
+  const venc = new Date(y, m-1, diaVenc);
+  if (hoje <= venc) return 0;
+  const dias = Math.floor((hoje - venc) / 86400000);
+  const multa = imovel.valor * 0.02;
+  const juros = imovel.valor * 0.00033 * dias;
+  return multa + juros;
+}
+
+// ===== DASHBOARD =====
+function renderDashboard() {
+  const hoje = new Date();
+  document.getElementById('dash-date').textContent = hoje.toLocaleDateString('pt-BR', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+  const ativos = db.imoveis.filter(i => i.clienteCod).length;
+  document.getElementById('stat-ativos').textContent = ativos;
+
+  const mesAtual = hoje.toISOString().slice(0,7);
+  let pagos = 0, pend = 0, atr = 0, recebido = 0, aReceber = 0, previsto = 0;
+
+  db.imoveis.forEach(im => {
+    if (!im.clienteCod) return;
+    previsto += Number(im.valor);
+    const pag = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mesAtual);
+    if (pag && pag.dataPag) {
+      pagos++;
+      recebido += Number(pag.valorPago);
+    } else {
+      aReceber += Number(im.valor);
+      const st = pag ? statusPagamento(pag) : (() => {
+        const diaVenc = new Date(hoje.getFullYear(), hoje.getMonth(), im.vencimento);
+        return hoje > diaVenc ? 'atrasado' : 'pendente';
+      })();
+      if (st === 'atrasado') atr++;
+      else pend++;
+    }
+  });
+
+  document.getElementById('stat-dia').textContent = pagos;
+  document.getElementById('stat-pend').textContent = pend;
+  document.getElementById('stat-atr').textContent = atr;
+  document.getElementById('dash-recebido').textContent = fmtMoeda(recebido);
+  document.getElementById('dash-areceber').textContent = fmtMoeda(aReceber);
+  document.getElementById('dash-previsto').textContent = fmtMoeda(previsto);
+
+  // Inadimplentes
+  const cont = document.getElementById('dash-inadimplentes');
+  const inad = db.imoveis.filter(im => {
+    if (!im.clienteCod) return false;
+    const pag = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mesAtual);
+    if (pag && pag.dataPag) return false;
+    const diaVenc = new Date(hoje.getFullYear(), hoje.getMonth(), im.vencimento);
+    return hoje > diaVenc;
+  });
+  if (inad.length === 0) {
+    cont.innerHTML = '<div class="empty"><div class="icon">✅</div><p>Nenhum inadimplente!</p></div>';
+  } else {
+    cont.innerHTML = inad.map(im => {
+      const diaVenc = new Date(hoje.getFullYear(), hoje.getMonth(), im.vencimento);
+      const dias = Math.floor((hoje - diaVenc) / 86400000);
+      return `<div class="alert-row">
+        <div class="info"><strong>${im.identificacao}</strong><br><span style="color:var(--muted);font-size:12px">${clienteNome(im.clienteCod)}</span></div>
+        <div style="text-align:right">
+          <div class="dias">${dias} dia(s) em atraso</div>
+          <div style="font-size:13px;color:var(--text)">${fmtMoeda(im.valor)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ===== CLIENTES =====
+function abrirModalCliente(id = null) {
+  document.getElementById('edit-cliente-id').value = '';
+  document.getElementById('modal-cliente-title').textContent = 'Novo Cliente';
+  ['nome','cpf','rg','telefone','email'].forEach(f => document.getElementById('c-'+f).value = '');
+  document.getElementById('c-datanasc').value = '';
+  document.getElementById('c-status').value = 'ativo';
+  if (id !== null) {
+    const c = db.clientes.find(x => x.id === id);
+    if (c) {
+      document.getElementById('edit-cliente-id').value = id;
+      document.getElementById('modal-cliente-title').textContent = 'Editar Cliente';
+      document.getElementById('c-nome').value = c.nome;
+      document.getElementById('c-cpf').value = c.cpf;
+      document.getElementById('c-rg').value = c.rg || '';
+      document.getElementById('c-datanasc').value = c.dataNasc || '';
+      document.getElementById('c-telefone').value = c.telefone;
+      document.getElementById('c-email').value = c.email || '';
+      document.getElementById('c-status').value = c.status;
+    }
+  }
+  abrirModal('modal-cliente');
+}
+
+function salvarCliente() {
+  const nome = document.getElementById('c-nome').value.trim();
+  const cpf = document.getElementById('c-cpf').value.trim();
+  const telefone = document.getElementById('c-telefone').value.trim();
+  const dataNasc = document.getElementById('c-datanasc').value.trim();
+  if (!nome || !cpf || !telefone || !dataNasc) { toast('Preencha os campos obrigatórios (*)', 'err'); return; }
+  const editId = document.getElementById('edit-cliente-id').value;
+  if (editId) {
+    const c = db.clientes.find(x => x.id === parseInt(editId));
+    if (c) {
+      c.nome = nome; c.cpf = cpf; c.rg = document.getElementById('c-rg').value;
+      c.dataNasc = dataNasc; c.telefone = telefone; c.email = document.getElementById('c-email').value;
+      c.status = document.getElementById('c-status').value;
+    }
+    toast('Cliente atualizado!');
+  } else {
+    const cpfExiste = db.clientes.find(x => x.cpf === cpf);
+    if (cpfExiste) { toast('CPF já cadastrado!', 'err'); return; }
+    const codigo = 'CLI-' + String(db.nextCliente).padStart(4,'0');
+    db.clientes.push({
+      id: db.nextCliente++, codigo,
+      nome, cpf, rg: document.getElementById('c-rg').value,
+      dataNasc, telefone, email: document.getElementById('c-email').value,
+      status: document.getElementById('c-status').value,
+      dataCad: new Date().toISOString().slice(0,10)
+    });
+    toast('Cliente cadastrado com sucesso!');
+  }
+  salvar(); fecharModal('modal-cliente'); renderClientes();
+}
+
+function excluirCliente(id) {
+  if (!confirm('Deseja excluir este cliente? Esta ação não pode ser desfeita.')) return;
+  const vinc = db.imoveis.find(i => i.clienteId === id);
+  if (vinc) { toast('Cliente vinculado a um imóvel. Desvincule primeiro.', 'err'); return; }
+  db.clientes = db.clientes.filter(x => x.id !== id);
+  salvar(); renderClientes(); toast('Cliente removido.');
+}
+
+function renderClientes() {
+  const busca = (document.getElementById('busca-clientes').value || '').toLowerCase();
+  let lista = db.clientes.filter(c =>
+    c.nome.toLowerCase().includes(busca) || c.codigo.toLowerCase().includes(busca) || c.cpf.includes(busca)
+  );
+  const tbody = document.getElementById('tbody-clientes');
+  const empty = document.getElementById('empty-clientes');
+  if (lista.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td><span class="code-badge">${c.codigo}</span></td>
+      <td><strong>${c.nome}</strong></td>
+      <td>${c.cpf}</td>
+      <td>${c.telefone}</td>
+      <td>${c.email || '—'}</td>
+      <td><span class="badge badge-${c.status === 'ativo' ? 'ativo' : 'inativo'}">● ${c.status}</span></td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="abrirModalCliente(${c.id})">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="excluirCliente(${c.id})" style="margin-left:6px">Excluir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ===== IMÓVEIS =====
+function populaSelectClientes() {
+  const sel = document.getElementById('i-cliente');
+  sel.innerHTML = '<option value="">— Sem morador —</option>';
+  db.clientes.filter(c => c.status === 'ativo').forEach(c => {
+    sel.innerHTML += `<option value="${c.codigo}">${c.codigo} — ${c.nome}</option>`;
+  });
+}
+
+function abrirModalImovel(id = null) {
+  populaSelectClientes();
+  document.getElementById('edit-imovel-id').value = '';
+  document.getElementById('modal-imovel-title').textContent = 'Novo Imóvel';
+  ['id','bairro','rua','numero','valor','vencimento'].forEach(f => document.getElementById('i-'+f).value = '');
+  document.getElementById('i-cliente').value = '';
+  if (id !== null) {
+    const im = db.imoveis.find(x => x.id === id);
+    if (im) {
+      document.getElementById('edit-imovel-id').value = id;
+      document.getElementById('modal-imovel-title').textContent = 'Editar Imóvel';
+      document.getElementById('i-id').value = im.identificacao;
+      document.getElementById('i-bairro').value = im.bairro;
+      document.getElementById('i-rua').value = im.rua;
+      document.getElementById('i-numero').value = im.numero;
+      document.getElementById('i-cliente').value = im.clienteCod || '';
+      document.getElementById('i-valor').value = im.valor;
+      document.getElementById('i-vencimento').value = im.vencimento;
+    }
+  }
+  abrirModal('modal-imovel');
+}
+
+function salvarImovel() {
+  const id = document.getElementById('i-id').value.trim();
+  const bairro = document.getElementById('i-bairro').value.trim();
+  const rua = document.getElementById('i-rua').value.trim();
+  const numero = document.getElementById('i-numero').value.trim();
+  const valor = document.getElementById('i-valor').value;
+  const venc = document.getElementById('i-vencimento').value;
+  if (!id || !bairro || !rua || !numero || !valor || !venc) { toast('Preencha os campos obrigatórios (*)', 'err'); return; }
+  const editId = document.getElementById('edit-imovel-id').value;
+  const clienteCod = document.getElementById('i-cliente').value;
+  if (editId) {
+    const im = db.imoveis.find(x => x.id === parseInt(editId));
+    if (im) {
+      im.identificacao = id; im.bairro = bairro; im.rua = rua; im.numero = numero;
+      im.clienteCod = clienteCod; im.valor = valor; im.vencimento = parseInt(venc);
+    }
+    toast('Imóvel atualizado!');
+  } else {
+    db.imoveis.push({
+      id: db.nextImovel++, identificacao: id, bairro, rua, numero,
+      clienteCod, valor: Number(valor), vencimento: parseInt(venc),
+      dataCad: new Date().toISOString().slice(0,10)
+    });
+    toast('Imóvel cadastrado!');
+  }
+  salvar(); fecharModal('modal-imovel'); renderImoveis();
+}
+
+function excluirImovel(id) {
+  if (!confirm('Deseja excluir este imóvel?')) return;
+  db.imoveis = db.imoveis.filter(x => x.id !== id);
+  salvar(); renderImoveis(); toast('Imóvel removido.');
+}
+
+function renderImoveis() {
+  const busca = (document.getElementById('busca-imoveis').value || '').toLowerCase();
+  let lista = db.imoveis.filter(im =>
+    im.identificacao.toLowerCase().includes(busca) ||
+    im.rua.toLowerCase().includes(busca) ||
+    im.bairro.toLowerCase().includes(busca) ||
+    (im.clienteCod && im.clienteCod.toLowerCase().includes(busca))
+  );
+  const tbody = document.getElementById('tbody-imoveis');
+  const empty = document.getElementById('empty-imoveis');
+  if (lista.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = lista.map(im => `
+    <tr>
+      <td><span class="code-badge">IM-${String(im.id).padStart(4,'0')}</span></td>
+      <td><strong>${im.identificacao}</strong></td>
+      <td>${im.rua}, ${im.numero} — ${im.bairro}</td>
+      <td>${im.clienteCod ? `<span class="code-badge">${im.clienteCod}</span> ${clienteNome(im.clienteCod)}` : '<span style="color:var(--muted)">Vago</span>'}</td>
+      <td>${fmtMoeda(im.valor)}</td>
+      <td>Dia ${im.vencimento}</td>
+      <td>
+        <button class="btn btn-secondary btn-sm" onclick="abrirModalImovel(${im.id})">Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="excluirImovel(${im.id})" style="margin-left:6px">Excluir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ===== PAGAMENTOS =====
+let filtroAtual = 'todos';
+
+function abrirModalPagamento() {
+  const sel = document.getElementById('p-imovel');
+  sel.innerHTML = '<option value="">Selecione o imóvel</option>';
+  db.imoveis.filter(i => i.clienteCod).forEach(i => {
+    sel.innerHTML += `<option value="${i.id}">${i.identificacao} — ${clienteNome(i.clienteCod)}</option>`;
+  });
+  const hoje = new Date();
+  document.getElementById('p-mes').value = hoje.toISOString().slice(0,7);
+  document.getElementById('p-data').value = hoje.toISOString().slice(0,10);
+  document.getElementById('p-valor').value = '';
+  document.getElementById('p-info-box').style.display = 'none';
+  abrirModal('modal-pagamento');
+}
+
+function preencherDadosPagamento() {
+  const id = parseInt(document.getElementById('p-imovel').value);
+  const box = document.getElementById('p-info-box');
+  if (!id) { box.style.display = 'none'; return; }
+  const im = db.imoveis.find(x => x.id === id);
+  if (!im) return;
+  document.getElementById('p-valor').value = im.valor;
+  const multa = calcularMulta({imovelId: id, mesRef: document.getElementById('p-mes').value});
+  box.style.display = 'block';
+  box.innerHTML = `
+    <strong style="color:var(--text)">${im.identificacao}</strong><br>
+    Morador: ${clienteNome(im.clienteCod)}<br>
+    Endereço: ${im.rua}, ${im.numero} — ${im.bairro}<br>
+    Aluguel base: <strong>${fmtMoeda(im.valor)}</strong><br>
+    ${multa > 0 ? `<span style="color:var(--danger)">Multa + juros: ${fmtMoeda(multa)}</span><br>Total: <strong style="color:var(--danger)">${fmtMoeda(Number(im.valor)+multa)}</strong>` : '<span style="color:var(--success)">Sem acréscimos</span>'}
+  `;
+}
+
+function salvarPagamento() {
+  const imovelId = parseInt(document.getElementById('p-imovel').value);
+  const mesRef = document.getElementById('p-mes').value;
+  const dataPag = document.getElementById('p-data').value;
+  const valorPago = document.getElementById('p-valor').value;
+  const forma = document.getElementById('p-forma').value;
+  if (!imovelId || !mesRef || !dataPag || !valorPago) { toast('Preencha todos os campos!', 'err'); return; }
+  const im = db.imoveis.find(x => x.id === imovelId);
+  // Verificar se já existe registro para esse mês
+  const existente = db.pagamentos.find(p => p.imovelId === imovelId && p.mesRef === mesRef);
+  if (existente && existente.dataPag) { toast('Pagamento já registrado para este mês!', 'err'); return; }
+  const pag = {
+    id: db.nextPag++, imovelId, mesRef, dataPag, valorPago: Number(valorPago),
+    forma, clienteCod: im.clienteCod,
+    registradoEm: new Date().toISOString().slice(0,10)
+  };
+  if (existente) Object.assign(existente, pag);
+  else db.pagamentos.push(pag);
+  salvar(); fecharModal('modal-pagamento'); renderPagamentos();
+  toast('Pagamento registrado com sucesso! ✔');
+  setTimeout(() => verComprovante(pag.id), 300);
+}
+
+function filtrarPag(tipo, el) {
+  filtroAtual = tipo;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderPagamentos();
+}
+
+function renderPagamentos() {
+  const mesAtual = new Date().toISOString().slice(0,7);
+  // Gerar registros automáticos de imóveis com morador sem pagamento
+  db.imoveis.forEach(im => {
+    if (!im.clienteCod) return;
+    const existe = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mesAtual);
+    if (!existe) db.pagamentos.push({
+      id: db.nextPag++, imovelId: im.id, mesRef: mesAtual,
+      dataPag: null, valorPago: null, forma: null,
+      clienteCod: im.clienteCod, registradoEm: null
+    });
+  });
+  salvar();
+
+  let lista = [...db.pagamentos].reverse();
+  if (filtroAtual !== 'todos') lista = lista.filter(p => statusPagamento(p) === filtroAtual);
+
+  const tbody = document.getElementById('tbody-pagamentos');
+  const empty = document.getElementById('empty-pagamentos');
+  if (lista.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = lista.map(p => {
+    const im = db.imoveis.find(x => x.id === p.imovelId);
+    const st = statusPagamento(p);
+    const [y,m] = p.mesRef.split('-').map(Number);
+    const diaVenc = im ? im.vencimento : 10;
+    const vencData = `${String(diaVenc).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+    return `<tr>
+      <td>${fmtMes(p.mesRef)}</td>
+      <td>${im ? im.identificacao : '—'}</td>
+      <td>${clienteNome(p.clienteCod)}</td>
+      <td>${im ? fmtMoeda(im.valor) : '—'}</td>
+      <td>${vencData}</td>
+      <td>${p.dataPag ? fmtData(p.dataPag) : '—'}</td>
+      <td>${p.forma || '—'}</td>
+      <td><span class="badge badge-${st}">● ${st}</span></td>
+      <td>
+        ${p.dataPag ? `<button class="btn btn-secondary btn-sm" onclick="verComprovante(${p.id})">Comprovante</button>` : 
+          `<button class="btn btn-primary btn-sm" onclick="pagarAgora(${p.id})">Pagar</button>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function pagarAgora(id) {
+  const pag = db.pagamentos.find(x => x.id === id);
+  if (!pag) return;
+  const im = db.imoveis.find(x => x.id === pag.imovelId);
+  document.getElementById('p-imovel').innerHTML = `<option value="${im.id}">${im.identificacao}</option>`;
+  document.getElementById('p-mes').value = pag.mesRef;
+  document.getElementById('p-data').value = new Date().toISOString().slice(0,10);
+  document.getElementById('p-valor').value = im.valor;
+  preencherDadosPagamento();
+  abrirModal('modal-pagamento');
+}
+
+function verComprovante(id) {
+  const p = db.pagamentos.find(x => x.id === id);
+  if (!p || !p.dataPag) return;
+  const im = db.imoveis.find(x => x.id === p.imovelId);
+  const cliente = db.clientes.find(x => x.codigo === p.clienteCod);
+  const [y,m] = p.mesRef.split('-').map(Number);
+  const diaVenc = im ? im.vencimento : 10;
+  document.getElementById('comprovante-content').innerHTML = `
+    <div class="comprovante" id="print-area">
+      <div class="comprovante-header">
+        <h2>AluguelPRO</h2>
+        <p style="font-size:12px;margin-top:4px">Comprovante de Pagamento</p>
+      </div>
+      <div class="comprovante-row"><span>Imóvel</span><strong>${im ? im.identificacao : '—'}</strong></div>
+      <div class="comprovante-row"><span>Endereço</span><strong>${im ? `${im.rua}, ${im.numero} — ${im.bairro}` : '—'}</strong></div>
+      <div class="comprovante-row"><span>Morador</span><strong>${cliente ? cliente.nome : '—'}</strong></div>
+      <div class="comprovante-row"><span>CPF</span><strong>${cliente ? cliente.cpf : '—'}</strong></div>
+      <div class="comprovante-row"><span>Referência</span><strong>${fmtMes(p.mesRef)}</strong></div>
+      <div class="comprovante-row"><span>Vencimento</span><strong>${String(diaVenc).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}</strong></div>
+      <div class="comprovante-row"><span>Data do Pagamento</span><strong>${fmtData(p.dataPag)}</strong></div>
+      <div class="comprovante-row"><span>Forma de Pagamento</span><strong>${p.forma}</strong></div>
+      <div class="comprovante-total"><span>Total Pago</span><span style="color:#1a7a2e">${fmtMoeda(p.valorPago)}</span></div>
+      <div style="text-align:center;font-size:11px;color:#888;margin-top:20px">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
+    </div>`;
+  abrirModal('modal-comprovante');
+}
+
+function imprimirComprovante() {
+  const conteudo = document.getElementById('print-area').innerHTML;
+  const janela = window.open('', '_blank');
+  janela.document.write(`<html><head><title>Comprovante</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>body{font-family:'DM Sans',sans-serif;padding:30px;max-width:500px;margin:auto}h2{font-family:'Syne',sans-serif}</style>
+  </head><body>${conteudo}<script>window.onload=()=>window.print()<\/script></body></html>`);
+  janela.document.close();
+}
+
+// ===== RELATÓRIOS =====
+function renderRelatorios() {
+  // Situação dos imóveis
+  const mesAtual = new Date().toISOString().slice(0,7);
+  const relIm = document.getElementById('rel-imoveis');
+  if (db.imoveis.length === 0) {
+    relIm.innerHTML = '<div class="empty"><div class="icon">🏠</div><p>Nenhum imóvel.</p></div>'; 
+  } else {
+    relIm.innerHTML = db.imoveis.map(im => {
+      const pag = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mesAtual);
+      let st = 'vago';
+      if (im.clienteCod) {
+        st = pag && pag.dataPag ? 'pago' : statusPagamento(pag || {imovelId: im.id, mesRef: mesAtual, dataPag: null});
+      }
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <strong>${im.identificacao}</strong><br>
+          <span class="text-muted">${im.rua}, ${im.numero} — ${im.bairro}</span>
+        </div>
+        <div style="text-align:right">
+          <div>${fmtMoeda(im.valor)}</div>
+          <span class="badge badge-${st === 'vago' ? 'inativo' : st}">● ${st}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Histórico últimos 10 pagamentos
+  const relHist = document.getElementById('rel-historico');
+  const pagos = db.pagamentos.filter(p => p.dataPag).slice(-10).reverse();
+  if (pagos.length === 0) {
+    relHist.innerHTML = '<div class="empty"><div class="icon">📋</div><p>Nenhum pagamento registrado.</p></div>';
+  } else {
+    relHist.innerHTML = pagos.map(p => {
+      const im = db.imoveis.find(x => x.id === p.imovelId);
+      return `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <div>
+          <strong>${im ? im.identificacao : '—'}</strong> · ${fmtMes(p.mesRef)}<br>
+          <span class="text-muted">${clienteNome(p.clienteCod)}</span>
+        </div>
+        <div style="text-align:right">
+          <strong style="color:var(--success)">${fmtMoeda(p.valorPago)}</strong><br>
+          <span class="text-muted">${fmtData(p.dataPag)}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+
+// ===== CONFIGURAÇÕES PIX =====
+let tipoPix = '';
+
+function selecionarTipoPix(tipo, el) {
+  tipoPix = tipo;
+  document.querySelectorAll('.pix-tipo-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels = { cpf:'CPF ou CNPJ', telefone:'Telefone (com DDD)', email:'E-mail', aleatoria:'Chave Aleatória' };
+  const placeholders = { cpf:'000.000.000-00 ou 00.000.000/0001-00', telefone:'(85) 99999-9999', email:'email@exemplo.com', aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' };
+  document.getElementById('cfg-pix-chave-label').textContent = labels[tipo] + ' *';
+  document.getElementById('cfg-pix-chave').placeholder = placeholders[tipo] || 'Digite a chave';
+  document.getElementById('cfg-pix-chave').value = '';
+  atualizarPreviewPix();
+}
+
+function atualizarPreviewPix() {
+  const nome = document.getElementById('cfg-pix-nome').value.trim();
+  const banco = document.getElementById('cfg-pix-banco').value.trim();
+  const chave = document.getElementById('cfg-pix-chave').value.trim();
+  const tipoLabels = { cpf:'CPF/CNPJ', telefone:'Telefone', email:'E-mail', aleatoria:'Aleatória', '':'—' };
+  document.getElementById('prev-nome').textContent = nome || '—';
+  document.getElementById('prev-banco').textContent = banco || '—';
+  document.getElementById('prev-tipo').textContent = tipoLabels[tipoPix] || '—';
+  document.getElementById('prev-chave').textContent = chave || '—';
+  const st = document.getElementById('prev-status');
+  if (nome && chave && tipoPix) {
+    st.innerHTML = '<span class="pix-status-badge pix-status-ok">✔ Configurado corretamente</span>';
+  } else {
+    st.innerHTML = '<span class="pix-status-badge pix-status-empty">⚠ Preencha todos os campos</span>';
+  }
+}
+
+function salvarConfigPix() {
+  const nome = document.getElementById('cfg-pix-nome').value.trim();
+  const banco = document.getElementById('cfg-pix-banco').value.trim();
+  const chave = document.getElementById('cfg-pix-chave').value.trim();
+  if (!nome || !chave || !tipoPix) { toast('Preencha nome, tipo e chave Pix!', 'err'); return; }
+  const cfg = { nome, banco, chave, tipo: tipoPix };
+  localStorage.setItem('aluguel_pro_pix', JSON.stringify(cfg));
+  salvar();
+  toast('Chave Pix salva com sucesso! O portal do morador já está atualizado. ✔');
+  renderStatusIntegracao();
+}
+
+function carregarConfigPix() {
+  try {
+    const saved = localStorage.getItem('aluguel_pro_pix');
+    if (!saved) { renderStatusIntegracao(); return; }
+    const cfg = JSON.parse(saved);
+    document.getElementById('cfg-pix-nome').value = cfg.nome || '';
+    document.getElementById('cfg-pix-banco').value = cfg.banco || '';
+    document.getElementById('cfg-pix-chave').value = cfg.chave || '';
+    if (cfg.tipo) {
+      tipoPix = cfg.tipo;
+      document.querySelectorAll('.pix-tipo-btn').forEach(b => {
+        if (b.getAttribute('onclick').includes("'" + cfg.tipo + "'")) b.classList.add('selected');
+      });
+    }
+    atualizarPreviewPix();
+  } catch(e) {}
+  renderStatusIntegracao();
+}
+
+function salvarConfigFinanceira() {
+  const multa = document.getElementById('cfg-multa').value;
+  const juros = document.getElementById('cfg-juros').value;
+  localStorage.setItem('aluguel_pro_financeiro', JSON.stringify({ multa: Number(multa), juros: Number(juros) }));
+  toast('Regras de cobrança salvas! ✔');
+}
+
+function carregarConfigFinanceira() {
+  try {
+    const saved = localStorage.getItem('aluguel_pro_financeiro');
+    if (saved) {
+      const cfg = JSON.parse(saved);
+      document.getElementById('cfg-multa').value = cfg.multa ?? 2;
+      document.getElementById('cfg-juros').value = cfg.juros ?? 0.033;
+    }
+  } catch(e) {}
+}
+
+function renderStatusIntegracao() {
+  const pix = localStorage.getItem('aluguel_pro_pix');
+  const clientes = db.clientes.filter(c => c.status === 'ativo').length;
+  const imoveis = db.imoveis.filter(i => i.clienteCod).length;
+  const pixOk = !!pix;
+  const el = document.getElementById('integracao-status');
+  if (!el) return;
+  el.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <span style="color:var(--muted)">Chave Pix configurada</span>
+        <span class="badge ${pixOk ? 'badge-pago' : 'badge-atrasado'}">${pixOk ? '✔ Sim' : '✕ Não'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <span style="color:var(--muted)">Moradores ativos</span>
+        <span style="font-weight:600;color:var(--accent)">${clientes}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)">
+        <span style="color:var(--muted)">Imóveis ocupados</span>
+        <span style="font-weight:600;color:var(--accent)">${imoveis}</span>
+      </div>
+    </div>`;
+}
+
+// ===== INIT =====
+carregar();
+renderDashboard();
+
+document.getElementById('dash-date').textContent = new Date().toLocaleDateString('pt-BR', {
+  weekday:'long', year:'numeric', month:'long', day:'numeric'
+});
+</script>
+</body>
+</html>

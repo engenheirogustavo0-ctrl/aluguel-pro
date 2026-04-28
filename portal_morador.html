@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portal do Morador</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --warm: #ede6d6;
+    --sand: #d9cebc;
+    --brown: #5c4a32;
+    --brown-light: #7a6448;
+    --ink: #1e1a14;
+    --muted: #8a7d6b;
+    --green: #2d6a4f;
+    --green-light: #52b788;
+    --green-bg: #d8f3dc;
+    --red: #c1121f;
+    --red-bg: #ffe5e7;
+    --warn: #e07b00;
+    --warn-bg: #fff3cd;
+    --border: #cdc3b0;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── TELA DE LOGIN ── */
+  #tela-login {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .login-left {
+    background: var(--brown);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 52px 56px;
+    position: relative;
+    overflow: hidden;
+  }
+  .login-left::before {
+    content: '';
+    position: absolute;
+    width: 420px; height: 420px;
+    border-radius: 50%;
+    border: 80px solid rgba(255,255,255,0.05);
+    bottom: -120px; right: -120px;
+  }
+  .login-left::after {
+    content: '';
+    position: absolute;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    border: 40px solid rgba(255,255,255,0.05);
+    top: 60px; right: 40px;
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    position: relative; z-index: 1;
+  }
+  .brand span { color: #c8f452; }
+
+  .login-left-body { position: relative; z-index: 1; }
+  .login-left h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 46px;
+    font-weight: 300;
+    color: #fff;
+    line-height: 1.15;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+  }
+  .login-left h1 em { font-style: italic; color: #c8f452; }
+  .login-left p { color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; max-width: 320px; }
+
+  .login-pills {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative; z-index: 1;
+  }
+  .pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.75);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+
+  .login-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 40px;
+  }
+
+  .login-box {
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .login-box h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .login-box p { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 7px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 13px 16px;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-input:focus {
+    border-color: var(--brown);
+    box-shadow: 0 0 0 4px rgba(92,74,50,0.08);
+  }
+
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    background: var(--brown);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    margin-top: 8px;
+  }
+  .btn-login:hover { background: var(--brown-light); transform: translateY(-1px); }
+  .btn-login:active { transform: translateY(0); }
+
+  .login-hint {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: var(--warm);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--brown-light);
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .login-error {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 16px;
+    background: var(--red-bg);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--red);
+    font-weight: 500;
+  }
+
+  /* ── PORTAL ── */
+  #tela-portal { display: none; }
+
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--brown);
+  }
+  .topbar-brand span { color: var(--green); }
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--ink);
+  }
+  .avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--brown);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Fraunces', serif;
+  }
+  .btn-sair {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 7px 16px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-sair:hover { border-color: var(--red); color: var(--red); }
+
+  .portal-body {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Saudação */
+  .greeting {
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease both;
+  }
+  .greeting h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .greeting p { color: var(--muted); font-size: 14px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Card imóvel */
+  .imovel-card {
+    background: var(--brown);
+    border-radius: 20px;
+    padding: 28px 32px;
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+  .imovel-card::before {
+    content: '🏠';
+    position: absolute;
+    font-size: 120px;
+    right: -10px; bottom: -20px;
+    opacity: 0.08;
+    filter: grayscale(1);
+  }
+  .imovel-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .imovel-name {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .imovel-addr { font-size: 14px; opacity: 0.75; line-height: 1.5; }
+  .imovel-valor-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.6; margin-bottom: 4px; text-align: right; }
+  .imovel-valor { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; text-align: right; letter-spacing: -1px; }
+  .imovel-venc { font-size: 12px; opacity: 0.6; text-align: right; margin-top: 4px; }
+
+  /* Seção de cobranças */
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    letter-spacing: -0.3px;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .cobranca-list { display: flex; flex-direction: column; gap: 12px; animation: fadeUp 0.5s 0.25s ease both; }
+
+  .cobranca-item {
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    transition: box-shadow 0.2s;
+  }
+  .cobranca-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+
+  .cob-status-icon {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .cob-status-icon.pago { background: var(--green-bg); }
+  .cob-status-icon.pendente { background: var(--warn-bg); }
+  .cob-status-icon.atrasado { background: var(--red-bg); }
+
+  .cob-info {}
+  .cob-mes { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
+  .cob-detalhe { font-size: 13px; color: var(--muted); }
+
+  .cob-right { text-align: right; }
+  .cob-valor { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .cob-badge {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .badge-pago { background: var(--green-bg); color: var(--green); }
+  .badge-pendente { background: var(--warn-bg); color: var(--warn); }
+  .badge-atrasado { background: var(--red-bg); color: var(--red); }
+  .badge-info { background: #e8f0fe; color: #1a73e8; }
+
+  .btn-pagar {
+    margin-top: 10px;
+    padding: 8px 18px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
+    display: block;
+    width: 100%;
+  }
+  .btn-pagar:hover { background: #1b5e3a; }
+
+  /* ── MODAL PIX ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30,26,20,0.55);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #fff;
+    border-radius: 24px;
+    width: 460px;
+    max-width: 95vw;
+    max-height: 92vh;
+    overflow-y: auto;
+    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.88); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-head {
+    padding: 26px 28px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-head h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+  }
+  .modal-close {
+    background: var(--warm);
+    border: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    transition: background 0.18s;
+  }
+  .modal-close:hover { background: var(--sand); color: var(--ink); }
+
+  .modal-body { padding: 24px 28px; }
+
+  /* Resumo da cobrança no modal */
+  .pix-resumo {
+    background: var(--warm);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pix-resumo-left {}
+  .pix-resumo-left .mes { font-weight: 600; font-size: 15px; }
+  .pix-resumo-left .desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .pix-resumo-valor { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
+
+  /* QR Code área */
+  .qr-section {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .qr-label { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+  .qr-box {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    gap: 12px;
+  }
+
+  /* QR Code SVG gerado dinamicamente */
+  #qr-canvas { width: 180px; height: 180px; }
+
+  .qr-pix-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--green);
+  }
+  .pix-icon {
+    width: 20px; height: 20px;
+    background: var(--green);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    transform: rotate(45deg);
+  }
+
+  /* Código Pix copia-e-cola */
+  .pix-copia {
+    margin-bottom: 20px;
+  }
+  .pix-copia label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 7px;
+  }
+  .pix-copia-box {
+    display: flex;
+    gap: 8px;
+  }
+  .pix-copia-input {
+    flex: 1;
+    background: var(--warm);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    outline: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .btn-copiar {
+    padding: 10px 18px;
+    background: var(--brown);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.18s;
+  }
+  .btn-copiar:hover { background: var(--brown-light); }
+  .btn-copiar.copiado { background: var(--green); }
+
+  /* Dados do destinatário */
+  .pix-dados {
+    background: var(--warm);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+  }
+  .pix-dados-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .pix-dado-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+  .pix-dado-row:last-child { margin-bottom: 0; }
+  .pix-dado-key { color: var(--muted); }
+  .pix-dado-val { font-weight: 600; }
+
+  /* Steps de instrução */
+  .pix-steps { margin-bottom: 24px; }
+  .pix-steps-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .step {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .step-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--brown);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Confirmação simulada */
+  .btn-confirmar {
+    width: 100%;
+    padding: 14px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.15s;
+  }
+  .btn-confirmar:hover { background: #1b5e3a; transform: translateY(-1px); }
+
+  .aviso {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* ── MODAL SUCESSO ── */
+  .sucesso-body {
+    padding: 48px 32px;
+    text-align: center;
+  }
+  .sucesso-icon {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: var(--green-bg);
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes bounceIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .sucesso-body h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .sucesso-body p { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 28px; }
+  .btn-fechar {
+    padding: 12px 32px;
+    background: var(--brown);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.18s;
+  }
+  .btn-fechar:hover { background: var(--brown-light); }
+
+  /* Comprovante simplificado */
+  .comprovante-mini {
+    background: var(--warm);
+    border-radius: var(--radius-sm);
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .comp-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+  .comp-row:last-child { margin-bottom: 0; border-top: 1px solid var(--sand); padding-top: 8px; font-weight: 700; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; line-height: 1.6; }
+
+  /* Sem imóvel */
+  #sem-imovel { display: none; }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 28px; right: 28px;
+    background: var(--ink); color: #fff;
+    padding: 12px 20px; border-radius: 10px;
+    font-size: 14px; font-weight: 500;
+    z-index: 9999; opacity: 0; transform: translateY(20px);
+    transition: all 0.3s; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 640px) {
+    #tela-login { grid-template-columns: 1fr; }
+    .login-left { display: none; }
+    .portal-body { padding: 24px 16px 60px; }
+    .imovel-card { grid-template-columns: 1fr; }
+    .topbar { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TELA DE LOGIN ═══════════════ -->
+<div id="tela-login">
+  <div class="login-left">
+    <div class="brand">Aluguel<span>PRO</span></div>
+    <div class="login-left-body">
+      <h1>Seu lar,<br><em>na palma</em><br>da mão.</h1>
+      <p>Acesse sua conta para visualizar cobranças, histórico de pagamentos e efetuar o Pix do seu aluguel com facilidade.</p>
+    </div>
+    <div class="login-pills">
+      <span class="pill">✔ Histórico de pagamentos</span>
+      <span class="pill">✔ Pix integrado</span>
+      <span class="pill">✔ Comprovantes</span>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-box">
+      <h2>Entrar no portal</h2>
+      <p>Use seu CPF e data de nascimento para acessar.</p>
+
+      <div class="form-group">
+        <label class="form-label">CPF (Login)</label>
+        <input class="form-input" id="login-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)" onkeydown="enterLogin(event)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data de Nascimento (Senha)</label>
+        <input class="form-input" id="login-nasc" type="date" onkeydown="enterLogin(event)">
+      </div>
+
+      <button class="btn-login" onclick="fazerLogin()">Entrar →</button>
+
+      <div class="login-error" id="login-error">
+        CPF ou data de nascimento incorretos. Verifique seus dados.
+      </div>
+
+      <div class="login-hint">
+        💡 <strong>Primeiro acesso?</strong> Seu login é o CPF cadastrado e a senha é sua data de nascimento. Em caso de dúvida, fale com o proprietário.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PORTAL DO MORADOR ═══════════════ -->
+<div id="tela-portal">
+  <div class="topbar">
+    <div class="topbar-brand">Aluguel<span>PRO</span></div>
+    <div class="topbar-right">
+      <div class="topbar-user">
+        <div class="avatar" id="portal-avatar">?</div>
+        <span id="portal-nome-top"></span>
+      </div>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </div>
+
+  <div class="portal-body">
+    <!-- SAUDAÇÃO -->
+    <div class="greeting">
+      <h2 id="portal-saudacao">Olá!</h2>
+      <p id="portal-sub">Aqui estão suas informações de aluguel.</p>
+    </div>
+
+    <!-- SEM IMÓVEL -->
+    <div id="sem-imovel">
+      <div class="empty">
+        <div class="empty-icon">🏠</div>
+        <p>Você não possui nenhum imóvel vinculado à sua conta no momento.<br>Entre em contato com o proprietário.</p>
+      </div>
+    </div>
+
+    <!-- COM IMÓVEL -->
+    <div id="com-imovel">
+      <!-- Card do imóvel -->
+      <div class="imovel-card" id="portal-imovel-card">
+        <div>
+          <div class="imovel-label">Seu imóvel</div>
+          <div class="imovel-name" id="p-imovel-nome">—</div>
+          <div class="imovel-addr" id="p-imovel-addr">—</div>
+        </div>
+        <div>
+          <div class="imovel-valor-label">Aluguel mensal</div>
+          <div class="imovel-valor" id="p-imovel-valor">—</div>
+          <div class="imovel-venc" id="p-imovel-venc">—</div>
+        </div>
+      </div>
+
+      <!-- COBRANÇAS -->
+      <div class="section-title">Cobranças</div>
+      <div class="cobranca-list" id="lista-cobrancas"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL PIX ═══════════════ -->
+<div class="modal-overlay" id="modal-pix">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Pagar com Pix</h3>
+      <button class="modal-close" onclick="fecharModal('modal-pix')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Resumo -->
+      <div class="pix-resumo">
+        <div class="pix-resumo-left">
+          <div class="mes" id="pix-mes">—</div>
+          <div class="desc" id="pix-imovel-desc">—</div>
+        </div>
+        <div class="pix-resumo-valor" id="pix-valor">R$ 0,00</div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="qr-section">
+        <div class="qr-label">Escaneie o QR Code com o app do seu banco</div>
+        <div class="qr-box">
+          <canvas id="qr-canvas" width="180" height="180"></canvas>
+          <div class="qr-pix-logo">
+            <div class="pix-icon">P</div>
+            Pix
+          </div>
+        </div>
+      </div>
+
+      <!-- Dados do recebedor -->
+      <div class="pix-dados">
+        <div class="pix-dados-title">Dados do recebedor</div>
+        <div class="pix-dado-row">
+          <span class="pix-dado-key">Nome</span>
+          <span class="pix-dado-val" id="pix-dest-nome">—</span>
+        </div>
+        <div class="pix-dado-row">
+          <span class="pix-dado-key">Chave Pix</span>
+          <span class="pix-dado-val" id="pix-dest-chave">—</span>
+        </div>
+        <div class="pix-dado-row">
+          <span class="pix-dado-key">Banco</span>
+          <span class="pix-dado-val" id="pix-dest-banco">—</span>
+        </div>
+      </div>
+
+      <!-- Pix copia e cola -->
+      <div class="pix-copia">
+        <label>Pix Copia e Cola</label>
+        <div class="pix-copia-box">
+          <input class="pix-copia-input" id="pix-codigo" readonly>
+          <button class="btn-copiar" id="btn-copiar" onclick="copiarPix()">Copiar</button>
+        </div>
+      </div>
+
+      <!-- Passos -->
+      <div class="pix-steps">
+        <div class="pix-steps-title">Como pagar</div>
+        <div class="step"><div class="step-num">1</div><span>Abra o app do seu banco e acesse a área Pix.</span></div>
+        <div class="step"><div class="step-num">2</div><span>Escolha <strong>Pagar com QR Code</strong> ou <strong>Copia e Cola</strong>.</span></div>
+        <div class="step"><div class="step-num">3</div><span>Escaneie o código acima ou cole o código Pix.</span></div>
+        <div class="step"><div class="step-num">4</div><span>Confirme os dados e o valor. Clique em pagar.</span></div>
+        <div class="step"><div class="step-num">5</div><span>Após o pagamento, clique em <strong>"Já realizei o Pix"</strong> abaixo.</span></div>
+      </div>
+
+      <!-- Confirmação -->
+      <button class="btn-confirmar" onclick="confirmarPagamento()">✔ Já realizei o Pix</button>
+      <p class="aviso">Após confirmar, o pagamento será registrado e você poderá visualizar o comprovante. Em caso de dúvida, entre em contato com o proprietário.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL SUCESSO ═══════════════ -->
+<div class="modal-overlay" id="modal-sucesso">
+  <div class="modal">
+    <div class="sucesso-body">
+      <div class="sucesso-icon">✅</div>
+      <h3>Pagamento confirmado!</h3>
+      <p>Seu pagamento foi registrado com sucesso.<br>Guarde o comprovante do seu banco como prova da transação.</p>
+      <div class="comprovante-mini" id="comp-mini"></div>
+      <button class="btn-fechar" onclick="fecharSucesso()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────
+//  BASE DE DADOS — compartilhada com sistema do dono
+//  Tenta ler do localStorage; se não existir, usa dados demo
+// ──────────────────────────────────────────────
+
+// Lê a chave Pix configurada pelo proprietário no sistema de gestão
+function getPIXConfig() {
+  try {
+    const saved = localStorage.getItem('aluguel_pro_pix');
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return null;
+}
+
+let db = {
+  clientes: [],
+  imoveis: [],
+  pagamentos: [],
+  nextCliente: 1,
+  nextImovel: 1,
+  nextPag: 1
+};
+
+function carregarDB() {
+  try {
+    const saved = localStorage.getItem('aluguel_pro_db');
+    if (saved) { db = JSON.parse(saved); return; }
+  } catch(e) {}
+  // DADOS DEMO se não há sistema de gestão conectado
+  db = {
+    nextCliente: 4, nextImovel: 4, nextPag: 10,
+    clientes: [
+      { id:1, codigo:'CLI-0001', nome:'Maria Aparecida Santos', cpf:'123.456.789-00', dataNasc:'1985-03-15', telefone:'(85) 98765-4321', email:'maria@email.com', status:'ativo' },
+      { id:2, codigo:'CLI-0002', nome:'João Pedro Oliveira', cpf:'987.654.321-00', dataNasc:'1990-07-22', telefone:'(85) 91234-5678', email:'joao@email.com', status:'ativo' },
+      { id:3, codigo:'CLI-0003', nome:'Ana Lima', cpf:'456.789.123-00', dataNasc:'1978-11-08', telefone:'(85) 99876-5432', email:'ana@email.com', status:'ativo' },
+    ],
+    imoveis: [
+      { id:1, identificacao:'Casa A', bairro:'Messejana', rua:'Rua das Flores', numero:'120', clienteCod:'CLI-0001', valor:800, vencimento:10 },
+      { id:2, identificacao:'Ap. 02', bairro:'Aldeota', rua:'Av. Santos Dumont', numero:'3400', clienteCod:'CLI-0002', valor:1200, vencimento:5 },
+      { id:3, identificacao:'Casa B', bairro:'Jangurussu', rua:'Rua Projetada', numero:'45', clienteCod:'CLI-0003', valor:650, vencimento:15 },
+    ],
+    pagamentos: []
+  };
+}
+
+function salvarDB() {
+  try { localStorage.setItem('aluguel_pro_db', JSON.stringify(db)); } catch(e) {}
+}
+
+// ──────────────────────────────────────────────
+//  HELPERS
+// ──────────────────────────────────────────────
+function fmtMoeda(v) {
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function fmtMes(m) {
+  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const [y,mo] = m.split('-');
+  return meses[parseInt(mo)-1] + ' de ' + y;
+}
+function fmtData(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+function maskCPF(i) {
+  let v = i.value.replace(/\D/g,'').slice(0,11);
+  v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  i.value = v;
+}
+function enterLogin(e) { if (e.key === 'Enter') fazerLogin(); }
+
+function toast(msg, tipo='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = tipo === 'err' ? '#c1121f' : '#2d6a4f';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function saudacao() {
+  const h = new Date().getHours();
+  if (h < 12) return 'Bom dia';
+  if (h < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
+function statusPag(pag, imovel) {
+  if (pag && pag.dataPag) return 'pago';
+  const hoje = new Date();
+  const [y,m] = (pag?.mesRef || new Date().toISOString().slice(0,7)).split('-').map(Number);
+  const venc = new Date(y, m-1, imovel.vencimento);
+  return hoje > venc ? 'atrasado' : 'pendente';
+}
+
+// ──────────────────────────────────────────────
+//  LOGIN
+// ──────────────────────────────────────────────
+let moradorLogado = null;
+let imovelLogado = null;
+
+function fazerLogin() {
+  const cpf = document.getElementById('login-cpf').value.trim();
+  const nasc = document.getElementById('login-nasc').value.trim();
+  const err = document.getElementById('login-error');
+  err.style.display = 'none';
+
+  if (!cpf || !nasc) { err.textContent = 'Preencha CPF e data de nascimento.'; err.style.display = 'block'; return; }
+
+  const cliente = db.clientes.find(c => c.cpf === cpf && c.dataNasc === nasc && c.status === 'ativo');
+  if (!cliente) { err.style.display = 'block'; return; }
+
+  moradorLogado = cliente;
+  imovelLogado = db.imoveis.find(i => i.clienteCod === cliente.codigo) || null;
+
+  entrarPortal();
+}
+
+function entrarPortal() {
+  document.getElementById('tela-login').style.display = 'none';
+  document.getElementById('tela-portal').style.display = 'block';
+
+  const nome = moradorLogado.nome.split(' ')[0];
+  const iniciais = moradorLogado.nome.split(' ').map(n=>n[0]).slice(0,2).join('');
+  document.getElementById('portal-avatar').textContent = iniciais;
+  document.getElementById('portal-nome-top').textContent = moradorLogado.nome;
+  document.getElementById('portal-saudacao').textContent = `${saudacao()}, ${nome}! 👋`;
+  document.getElementById('portal-sub').textContent = `${new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}`;
+
+  if (!imovelLogado) {
+    document.getElementById('sem-imovel').style.display = 'block';
+    document.getElementById('com-imovel').style.display = 'none';
+  } else {
+    document.getElementById('sem-imovel').style.display = 'none';
+    document.getElementById('com-imovel').style.display = 'block';
+    renderPortal();
+  }
+}
+
+function sair() {
+  moradorLogado = null; imovelLogado = null;
+  document.getElementById('tela-login').style.display = 'grid';
+  document.getElementById('tela-portal').style.display = 'none';
+  document.getElementById('login-cpf').value = '';
+  document.getElementById('login-nasc').value = '';
+  document.getElementById('login-error').style.display = 'none';
+}
+
+// ──────────────────────────────────────────────
+//  PORTAL — RENDER
+// ──────────────────────────────────────────────
+function renderPortal() {
+  const im = imovelLogado;
+  document.getElementById('p-imovel-nome').textContent = im.identificacao;
+  document.getElementById('p-imovel-addr').textContent = `${im.rua}, ${im.numero} — ${im.bairro}`;
+  document.getElementById('p-imovel-valor').textContent = fmtMoeda(im.valor);
+  document.getElementById('p-imovel-venc').textContent = `Vence todo dia ${im.vencimento}`;
+
+  // Gerar cobranças dos últimos 3 meses + mês atual
+  const hoje = new Date();
+  const meses = [];
+  for (let i = 2; i >= 0; i--) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    meses.push(d.toISOString().slice(0,7));
+  }
+  // Garantir que pagamentos pendentes existam no db
+  meses.forEach(mes => {
+    const existe = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mes);
+    if (!existe) {
+      db.pagamentos.push({ id: db.nextPag++, imovelId: im.id, mesRef: mes, dataPag: null, valorPago: null, forma: 'Pix', clienteCod: moradorLogado.codigo, registradoEm: null });
+      salvarDB();
+    }
+  });
+
+  const lista = document.getElementById('lista-cobrancas');
+  lista.innerHTML = '';
+  meses.reverse().forEach(mes => {
+    const pag = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mes);
+    const st = statusPag(pag, im);
+    const icons = { pago:'✅', pendente:'🕐', atrasado:'❗' };
+    const labels = { pago:'Pago', pendente:'Pendente', atrasado:'Em atraso' };
+
+    const [y,m] = mes.split('-').map(Number);
+    const vencStr = `${String(im.vencimento).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+
+    const div = document.createElement('div');
+    div.className = 'cobranca-item';
+    div.innerHTML = `
+      <div class="cob-status-icon ${st}">${icons[st]}</div>
+      <div class="cob-info">
+        <div class="cob-mes">${fmtMes(mes)}</div>
+        <div class="cob-detalhe">Vencimento: ${vencStr} · ${im.identificacao}</div>
+        ${st === 'atrasado' ? `<div style="font-size:12px;color:var(--red);margin-top:4px">⚠ Pagamento em atraso — multa e juros podem ser aplicados</div>` : ''}
+      </div>
+      <div class="cob-right">
+        <div class="cob-valor" style="color:${st==='atrasado'?'var(--red)':st==='pago'?'var(--green)':'var(--ink)'}">${fmtMoeda(im.valor)}</div>
+        <span class="cob-badge badge-${st}">${labels[st]}</span>
+        ${st !== 'pago' ? `<br><button class="btn-pagar" onclick="abrirPix('${mes}')">Pagar com Pix →</button>` : `<br><button class="btn-pagar" style="background:var(--brown-light);margin-top:10px" onclick="verComp('${mes}')">Ver comprovante</button>`}
+      </div>`;
+    lista.appendChild(div);
+  });
+}
+
+// ──────────────────────────────────────────────
+//  PIX
+// ──────────────────────────────────────────────
+let pagAtual = null;
+
+function abrirPix(mes) {
+  const im = imovelLogado;
+  pagAtual = { mes, imovelId: im.id, valor: im.valor };
+
+  document.getElementById('pix-mes').textContent = fmtMes(mes);
+  document.getElementById('pix-imovel-desc').textContent = `${im.identificacao} · ${im.rua}, ${im.numero}`;
+  document.getElementById('pix-valor').textContent = fmtMoeda(im.valor);
+
+  const pixCfg = getPIXConfig();
+  if (!pixCfg) {
+    toast('Chave Pix ainda não configurada pelo proprietário.', 'err');
+    return;
+  }
+  document.getElementById('pix-dest-nome').textContent = pixCfg.nome;
+  document.getElementById('pix-dest-chave').textContent = pixCfg.chave;
+  document.getElementById('pix-dest-banco').textContent = pixCfg.banco || '—';
+
+  // Gerar código Pix copia-e-cola (formato EMV simplificado)
+  const codigoPix = gerarCodigoPix(im.valor, mes);
+  document.getElementById('pix-codigo').value = codigoPix;
+  document.getElementById('btn-copiar').textContent = 'Copiar';
+  document.getElementById('btn-copiar').classList.remove('copiado');
+
+  // Desenhar QR Code
+  desenharQR(codigoPix);
+
+  abrirModal('modal-pix');
+}
+
+function gerarCodigoPix(valor, mes) {
+  // Payload Pix simplificado (demo — substitua por integração real)
+  const pixCfg = getPIXConfig() || { chave: '00000000000', nome: 'PROPRIETARIO' };
+  const chave = pixCfg.chave;
+  const nome = pixCfg.nome.slice(0,25).toUpperCase();
+  const cidade = 'FORTALEZA';
+  const desc = `ALUGUEL ${mes}`.slice(0,25);
+  const val = valor.toFixed(2);
+  const txid = 'ALG' + mes.replace('-','') + Math.floor(Math.random()*9999);
+
+  const gui = '0014BR.GOV.BCB.PIX';
+  const keyField = `0001${chave.replace(/\D/g,'').length.toString().padStart(2,'0')}${chave.replace(/\D/g,'')}`;
+  const addInfo = `0217${desc}50${String(txid.length).padStart(2,'0')}${txid}`;
+  const pixField = `${gui}${keyField}0217${addInfo}`;
+
+  let payload = `000201${String(pixField.length+4).padStart(2,'0')}${pixField}`;
+  payload += `52040000530398654${String(val.length).padStart(2,'0')}${val}`;
+  payload += `5802BR59${String(nome.length).padStart(2,'0')}${nome}60${String(cidade.length).padStart(2,'0')}${cidade}`;
+  payload += '6304';
+  payload += crc16(payload + '6304').toString(16).toUpperCase().padStart(4,'0');
+  return payload;
+}
+
+function crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+    }
+  }
+  return crc & 0xFFFF;
+}
+
+function desenharQR(texto) {
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const size = 180;
+  canvas.width = size; canvas.height = size;
+
+  // QR simplificado visual (padrão de módulos — use qrcode.js em produção)
+  // Para demo, geramos um padrão visual representativo
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, size, size);
+  ctx.fillStyle = '#1e1a14';
+
+  const modules = 29;
+  const mod = Math.floor(size / modules);
+  const offset = Math.floor((size - modules * mod) / 2);
+
+  // Gerar matriz pseudo-aleatória determinística a partir do texto
+  const seed = Array.from(texto).reduce((a,c) => a + c.charCodeAt(0), 0);
+  const rand = (i) => ((seed * 1103515245 + i * 12345) >>> 0) % 2;
+
+  for (let r = 0; r < modules; r++) {
+    for (let c = 0; c < modules; c++) {
+      // Finder patterns (cantos)
+      const inFinder = (
+        (r < 8 && c < 8) || (r < 8 && c >= modules-8) || (r >= modules-8 && c < 8)
+      );
+      let dark = inFinder ? finderPattern(r, c, modules) : rand(r * modules + c);
+      if (dark) {
+        ctx.fillRect(offset + c * mod, offset + r * mod, mod - 1, mod - 1);
+      }
+    }
+  }
+
+  // Timing patterns
+  for (let i = 8; i < modules - 8; i++) {
+    if (i % 2 === 0) {
+      ctx.fillRect(offset + i * mod, offset + 6 * mod, mod-1, mod-1);
+      ctx.fillRect(offset + 6 * mod, offset + i * mod, mod-1, mod-1);
+    }
+  }
+}
+
+function finderPattern(r, c, m) {
+  const inSquare = (r, c, r0, c0, size) => r >= r0 && r < r0+size && c >= c0 && c < c0+size;
+  const corners = [[0,0],[0,m-7],[m-7,0]];
+  for (const [rr, cc] of corners) {
+    if (inSquare(r,c,rr,cc,7)) {
+      const lr = r - rr, lc = c - cc;
+      if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return 1;
+      if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return 1;
+      return 0;
+    }
+  }
+  return -1;
+}
+
+function copiarPix() {
+  const codigo = document.getElementById('pix-codigo').value;
+  navigator.clipboard.writeText(codigo).then(() => {
+    const btn = document.getElementById('btn-copiar');
+    btn.textContent = '✔ Copiado!';
+    btn.classList.add('copiado');
+    toast('Código Pix copiado!');
+  }).catch(() => {
+    document.getElementById('pix-codigo').select();
+    document.execCommand('copy');
+    toast('Código Pix copiado!');
+  });
+}
+
+function confirmarPagamento() {
+  if (!pagAtual) return;
+  const hoje = new Date().toISOString().slice(0,10);
+  const pag = db.pagamentos.find(p => p.imovelId === pagAtual.imovelId && p.mesRef === pagAtual.mes);
+  if (pag) {
+    pag.dataPag = hoje;
+    pag.valorPago = pagAtual.valor;
+    pag.forma = 'Pix';
+    pag.registradoEm = hoje;
+  } else {
+    db.pagamentos.push({
+      id: db.nextPag++, imovelId: pagAtual.imovelId, mesRef: pagAtual.mes,
+      dataPag: hoje, valorPago: pagAtual.valor, forma: 'Pix',
+      clienteCod: moradorLogado.codigo, registradoEm: hoje
+    });
+  }
+  salvarDB();
+  fecharModal('modal-pix');
+  mostrarSucesso(pagAtual.mes, pagAtual.valor);
+  pagAtual = null;
+}
+
+function mostrarSucesso(mes, valor) {
+  const im = imovelLogado;
+  document.getElementById('comp-mini').innerHTML = `
+    <div class="comp-row"><span>Imóvel</span><span>${im.identificacao}</span></div>
+    <div class="comp-row"><span>Referência</span><span>${fmtMes(mes)}</span></div>
+    <div class="comp-row"><span>Forma</span><span>Pix</span></div>
+    <div class="comp-row"><span>Data</span><span>${fmtData(new Date().toISOString().slice(0,10))}</span></div>
+    <div class="comp-row"><span>Total pago</span><span style="color:var(--green)">${fmtMoeda(valor)}</span></div>
+  `;
+  abrirModal('modal-sucesso');
+}
+
+function fecharSucesso() {
+  fecharModal('modal-sucesso');
+  renderPortal();
+}
+
+function verComp(mes) {
+  const pag = db.pagamentos.find(p => p.imovelId === imovelLogado.id && p.mesRef === mes && p.dataPag);
+  if (!pag) return;
+  mostrarSucesso(mes, pag.valorPago);
+}
+
+// ──────────────────────────────────────────────
+//  MODAIS
+// ──────────────────────────────────────────────
+function abrirModal(id) { document.getElementById(id).classList.add('open'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ──────────────────────────────────────────────
+//  INIT
+// ──────────────────────────────────────────────
+carregarDB();
+</script>
+</body>
+</html>
