@@ -3,1280 +3,1120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portal do Morador</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,300&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>AluguelPRO — Gestão de Aluguéis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
   :root {
-    --cream: #f5f0e8;
-    --warm: #ede6d6;
-    --sand: #d9cebc;
-    --brown: #5c4a32;
-    --brown-light: #7a6448;
-    --ink: #1e1a14;
-    --muted: #8a7d6b;
-    --green: #2d6a4f;
-    --green-light: #52b788;
-    --green-bg: #d8f3dc;
-    --red: #c1121f;
-    --red-bg: #ffe5e7;
-    --warn: #e07b00;
-    --warn-bg: #fff3cd;
-    --border: #cdc3b0;
-    --radius: 16px;
-    --radius-sm: 10px;
+    --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#222;--border:#2e2e2e;
+    --accent:#c8f452;--text:#f0f0f0;--muted:#888;--danger:#ff5f5f;
+    --warn:#ffb347;--info:#60b4ff;--success:#7fff6e;--radius:12px;--radius-sm:8px;
   }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  /* ── SETUP OVERLAY ── */
+  #setup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+  .setup-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:520px;max-width:95vw;padding:40px}
+  .setup-logo{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:24px}.setup-logo span{color:var(--accent)}
+  .setup-box h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px}
+  .setup-box p{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6}
+  .setup-step{display:flex;gap:12px;margin-bottom:14px;font-size:13px;line-height:1.5}
+  .setup-num{min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#0f0f0f;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .setup-input-group{margin:20px 0 8px}
+  .setup-label{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:6px;display:block}
+  .setup-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;margin-bottom:10px;font-family:monospace}
+  .setup-input:focus{border-color:var(--accent)}
+  .setup-btn{width:100%;padding:12px;background:var(--accent);color:#0f0f0f;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.18s}
+  .setup-btn:hover{background:#d9ff6a}
+  .setup-err{font-size:12px;color:var(--danger);margin-top:8px;display:none}
+  .setup-link{color:var(--accent);text-decoration:none}
 
-  body {
-    font-family: 'Instrument Sans', sans-serif;
-    background: var(--cream);
-    color: var(--ink);
-    min-height: 100vh;
-  }
+  /* ── SIDEBAR ── */
+  #sidebar{width:230px;min-height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:100}
+  .logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;padding:0 24px 28px;border-bottom:1px solid var(--border);letter-spacing:-0.5px}
+  .logo span{color:var(--accent)}
+  .nav{padding:16px 12px;flex:1}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px;font-weight:400;color:var(--muted);transition:all 0.18s;border:none;background:none;width:100%;text-align:left;margin-bottom:2px}
+  .nav-item:hover{background:var(--surface2);color:var(--text)}
+  .nav-item.active{background:var(--accent);color:#0f0f0f;font-weight:500}
+  .nav-item .icon{font-size:17px;width:22px;text-align:center}
+  .sidebar-footer{padding:18px 24px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)}
+  .sidebar-footer .db-status{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:12px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--success)}
+  .dot.off{background:var(--danger)}
 
-  /* ── TELA DE LOGIN ── */
-  #tela-login {
-    min-height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
+  /* ── MAIN ── */
+  #main{margin-left:230px;flex:1;min-height:100vh;padding:36px 40px}
+  .page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px}
+  .page-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;letter-spacing:-0.5px}
+  .page-sub{font-size:13px;color:var(--muted);margin-top:4px}
 
-  .login-left {
-    background: var(--brown);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 52px 56px;
-    position: relative;
-    overflow: hidden;
-  }
-  .login-left::before {
-    content: '';
-    position: absolute;
-    width: 420px; height: 420px;
-    border-radius: 50%;
-    border: 80px solid rgba(255,255,255,0.05);
-    bottom: -120px; right: -120px;
-  }
-  .login-left::after {
-    content: '';
-    position: absolute;
-    width: 220px; height: 220px;
-    border-radius: 50%;
-    border: 40px solid rgba(255,255,255,0.05);
-    top: 60px; right: 40px;
-  }
+  /* ── STATS ── */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+  .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .stat-card.green::before{background:var(--accent)}.stat-card.blue::before{background:var(--info)}
+  .stat-card.red::before{background:var(--danger)}.stat-card.warn::before{background:var(--warn)}
+  .stat-label{font-size:12px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px}
+  .stat-value{font-family:'Syne',sans-serif;font-size:26px;font-weight:700}
+  .stat-value.green{color:var(--accent)}.stat-value.blue{color:var(--info)}.stat-value.red{color:var(--danger)}.stat-value.warn{color:var(--warn)}
 
-  .brand {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -0.5px;
-    position: relative; z-index: 1;
-  }
-  .brand span { color: #c8f452; }
+  /* ── BOTÕES ── */
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;transition:all 0.18s}
+  .btn-primary{background:var(--accent);color:#0f0f0f}.btn-primary:hover{background:#d9ff6a;transform:translateY(-1px)}
+  .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--border)}
+  .btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}.btn-danger:hover{background:var(--danger);color:#fff}
+  .btn-sm{padding:6px 13px;font-size:13px}
 
-  .login-left-body { position: relative; z-index: 1; }
-  .login-left h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 46px;
-    font-weight: 300;
-    color: #fff;
-    line-height: 1.15;
-    margin-bottom: 18px;
-    letter-spacing: -1px;
-  }
-  .login-left h1 em { font-style: italic; color: #c8f452; }
-  .login-left p { color: rgba(255,255,255,0.6); font-size: 15px; line-height: 1.6; max-width: 320px; }
+  /* ── TABELA ── */
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .table-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border)}
+  .table-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600}
+  table{width:100%;border-collapse:collapse}
+  thead th{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);font-weight:500;padding:12px 24px;text-align:left;border-bottom:1px solid var(--border)}
+  tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s}
+  tbody tr:last-child{border-bottom:none}
+  tbody tr:hover{background:var(--surface2)}
+  tbody td{padding:14px 24px;font-size:14px}
+  .code-badge{font-family:monospace;background:var(--surface2);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-size:12px;color:var(--accent)}
 
-  .login-pills {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    position: relative; z-index: 1;
-  }
-  .pill {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    color: rgba(255,255,255,0.75);
-    font-size: 12px;
-    padding: 6px 14px;
-    border-radius: 20px;
-  }
+  /* ── BADGES ── */
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:500}
+  .badge-pago{background:rgba(127,255,110,0.12);color:var(--success)}
+  .badge-pendente{background:rgba(255,179,71,0.12);color:var(--warn)}
+  .badge-atrasado{background:rgba(255,95,95,0.12);color:var(--danger)}
+  .badge-ativo{background:rgba(96,180,255,0.12);color:var(--info)}
+  .badge-inativo{background:rgba(136,136,136,0.12);color:var(--muted)}
+  .badge-aguardando{background:rgba(96,180,255,0.15);color:var(--info)}
 
-  .login-right {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 40px;
-  }
+  /* ── MODAL ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;animation:slideUp 0.22s ease}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:22px 26px;border-bottom:1px solid var(--border)}
+  .modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+  .modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color 0.15s}
+  .modal-close:hover{color:var(--text)}
+  .modal-body{padding:26px}
+  .modal-footer{padding:18px 26px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end}
 
-  .login-box {
-    width: 100%;
-    max-width: 380px;
-  }
+  /* ── FORMS ── */
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .form-row.single{grid-template-columns:1fr}.form-row.triple{grid-template-columns:1fr 1fr 1fr}
+  .form-group{display:flex;flex-direction:column;gap:6px}
+  .form-label{font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.4px}
+  .form-control{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.18s;width:100%}
+  .form-control:focus{border-color:var(--accent)}
+  .form-control option{background:var(--surface2)}
 
-  .login-box h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    letter-spacing: -0.5px;
-  }
-  .login-box p { color: var(--muted); font-size: 14px; margin-bottom: 36px; }
+  /* ── SEARCH ── */
+  .search-box{position:relative;display:inline-block}
+  .search-box input{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px 8px 36px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;width:220px;transition:border-color 0.18s}
+  .search-box input:focus{border-color:var(--accent)}
+  .search-box::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none}
 
-  .form-group { margin-bottom: 18px; }
-  .form-label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 7px;
-  }
-  .form-input {
-    width: 100%;
-    padding: 13px 16px;
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 15px;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .form-input:focus {
-    border-color: var(--brown);
-    box-shadow: 0 0 0 4px rgba(92,74,50,0.08);
-  }
+  /* ── PAGES ── */
+  .page{display:none}.page.active{display:block}
+  .tabs{display:flex;gap:4px;margin-bottom:24px}
+  .tab{padding:8px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;background:none;color:var(--muted);transition:all 0.18s;font-family:'DM Sans',sans-serif}
+  .tab.active{background:var(--accent);color:#0f0f0f}
+  .tab:not(.active):hover{background:var(--surface2);color:var(--text)}
 
-  .btn-login {
-    width: 100%;
-    padding: 14px;
-    background: var(--brown);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s;
-    margin-top: 8px;
-  }
-  .btn-login:hover { background: var(--brown-light); transform: translateY(-1px); }
-  .btn-login:active { transform: translateY(0); }
+  /* ── COMPROVANTE ── */
+  .comprovante{background:#fff;color:#111;border-radius:var(--radius);padding:30px;font-family:'DM Sans',sans-serif}
+  .comprovante-header{text-align:center;border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:20px}
+  .comprovante-header h2{font-family:'Syne',sans-serif;font-size:20px}
+  .comprovante-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+  .comprovante-total{border-top:2px solid #111;margin-top:16px;padding-top:16px;font-size:18px;font-weight:700;display:flex;justify-content:space-between}
 
-  .login-hint {
-    margin-top: 20px;
-    padding: 14px 16px;
-    background: var(--warm);
-    border-radius: var(--radius-sm);
-    border-left: 3px solid var(--brown-light);
-    font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
+  /* ── EMPTY ── */
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty .icon{font-size:40px;margin-bottom:12px}
+  .empty p{font-size:14px}
 
-  .login-error {
-    display: none;
-    margin-top: 14px;
-    padding: 12px 16px;
-    background: var(--red-bg);
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    color: var(--red);
-    font-weight: 500;
-  }
+  /* ── ALERT INADIMPLENTE ── */
+  .alert-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(255,95,95,0.07);border:1px solid rgba(255,95,95,0.2);border-radius:var(--radius-sm);margin-bottom:10px}
+  .alert-row .info{font-size:14px}.alert-row .dias{font-size:12px;color:var(--danger);font-weight:600}
 
-  /* ── PORTAL ── */
-  #tela-portal { display: none; }
+  /* ── CONFIGS ── */
+  .config-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .config-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .config-card-header{padding:18px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  .config-card-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--surface2)}
+  .config-card-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:600}
+  .config-card-body{padding:24px}
+  .config-card-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+  .pix-tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .pix-tipo-btn{padding:10px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--surface2);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;text-align:center;transition:all 0.18s}
+  .pix-tipo-btn:hover{border-color:var(--accent);color:var(--text)}
+  .pix-tipo-btn.selected{border-color:var(--accent);background:rgba(200,244,82,0.08);color:var(--accent);font-weight:500}
+  .pix-preview{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px 20px;margin-top:20px}
+  .pix-preview-title{font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:12px}
+  .pix-preview-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;align-items:center}
+  .pix-preview-row:last-child{margin-bottom:0}
+  .pix-preview-key{color:var(--muted)}
+  .pix-preview-val{color:var(--accent);font-weight:500;font-family:monospace;font-size:13px;max-width:55%;text-align:right;word-break:break-all}
+  .pix-status-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;margin-top:12px}
+  .pix-status-ok{background:rgba(127,255,110,0.12);color:var(--success)}
+  .pix-status-empty{background:rgba(255,179,71,0.12);color:var(--warn)}
+  .multa-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+  .multa-row:last-child{border-bottom:none}
+  .multa-label{font-size:14px}.multa-sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .multa-input-wrap{display:flex;align-items:center;gap:6px}
+  .multa-input{width:80px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;text-align:right;outline:none}
+  .multa-input:focus{border-color:var(--accent)}
+  .multa-unit{font-size:13px;color:var(--muted)}
 
-  .topbar {
-    background: #fff;
-    border-bottom: 1px solid var(--border);
-    padding: 0 40px;
-    height: 64px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .topbar-brand {
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--brown);
-  }
-  .topbar-brand span { color: var(--green); }
-  .topbar-right { display: flex; align-items: center; gap: 16px; }
-  .topbar-user {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    color: var(--ink);
-  }
-  .avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: var(--brown);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: 'Fraunces', serif;
-  }
-  .btn-sair {
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 7px 16px;
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 13px;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.18s;
-  }
-  .btn-sair:hover { border-color: var(--red); color: var(--red); }
+  /* ── LOADING ── */
+  .loading-row td{text-align:center;padding:32px;color:var(--muted);font-size:14px}
+  .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+  @keyframes spin{to{transform:rotate(360deg)}}
 
-  .portal-body {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-  }
+  /* ── TOAST ── */
+  #toast{position:fixed;bottom:30px;right:30px;background:var(--accent);color:#0f0f0f;padding:12px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;z-index:9999;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none}
+  #toast.show{transform:translateY(0);opacity:1}
 
-  /* Saudação */
-  .greeting {
-    margin-bottom: 32px;
-    animation: fadeUp 0.5s ease both;
-  }
-  .greeting h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 32px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
-    margin-bottom: 4px;
-  }
-  .greeting p { color: var(--muted); font-size: 14px; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Card imóvel */
-  .imovel-card {
-    background: var(--brown);
-    border-radius: 20px;
-    padding: 28px 32px;
-    color: #fff;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 20px;
-    margin-bottom: 32px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeUp 0.5s 0.1s ease both;
-  }
-  .imovel-card::before {
-    content: '🏠';
-    position: absolute;
-    font-size: 120px;
-    right: -10px; bottom: -20px;
-    opacity: 0.08;
-    filter: grayscale(1);
-  }
-  .imovel-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    opacity: 0.6;
-    margin-bottom: 4px;
-  }
-  .imovel-name {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 500;
-    margin-bottom: 10px;
-    letter-spacing: -0.5px;
-  }
-  .imovel-addr { font-size: 14px; opacity: 0.75; line-height: 1.5; }
-  .imovel-valor-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.6; margin-bottom: 4px; text-align: right; }
-  .imovel-valor { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; text-align: right; letter-spacing: -1px; }
-  .imovel-venc { font-size: 12px; opacity: 0.6; text-align: right; margin-top: 4px; }
-
-  /* Seção de cobranças */
-  .section-title {
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    font-weight: 500;
-    margin-bottom: 16px;
-    letter-spacing: -0.3px;
-    animation: fadeUp 0.5s 0.2s ease both;
-  }
-
-  .cobranca-list { display: flex; flex-direction: column; gap: 12px; animation: fadeUp 0.5s 0.25s ease both; }
-
-  .cobranca-item {
-    background: #fff;
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 24px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 20px;
-    transition: box-shadow 0.2s;
-  }
-  .cobranca-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
-
-  .cob-status-icon {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-  .cob-status-icon.pago { background: var(--green-bg); }
-  .cob-status-icon.pendente { background: var(--warn-bg); }
-  .cob-status-icon.atrasado { background: var(--red-bg); }
-
-  .cob-info {}
-  .cob-mes { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
-  .cob-detalhe { font-size: 13px; color: var(--muted); }
-
-  .cob-right { text-align: right; }
-  .cob-valor { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
-  .cob-badge {
-    display: inline-block;
-    padding: 3px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-  }
-  .badge-pago { background: var(--green-bg); color: var(--green); }
-  .badge-pendente { background: var(--warn-bg); color: var(--warn); }
-  .badge-atrasado { background: var(--red-bg); color: var(--red); }
-  .badge-info { background: #e8f0fe; color: #1a73e8; }
-
-  .btn-pagar {
-    margin-top: 10px;
-    padding: 8px 18px;
-    background: var(--green);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.18s;
-    display: block;
-    width: 100%;
-  }
-  .btn-pagar:hover { background: #1b5e3a; }
-
-  /* ── MODAL PIX ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(30,26,20,0.55);
-    z-index: 500;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(6px);
-  }
-  .modal-overlay.open { display: flex; }
-
-  .modal {
-    background: #fff;
-    border-radius: 24px;
-    width: 460px;
-    max-width: 95vw;
-    max-height: 92vh;
-    overflow-y: auto;
-    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
-  }
-  @keyframes popIn {
-    from { transform: scale(0.88); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .modal-head {
-    padding: 26px 28px 20px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .modal-head h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    font-weight: 500;
-    letter-spacing: -0.3px;
-  }
-  .modal-close {
-    background: var(--warm);
-    border: none;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--muted);
-    transition: background 0.18s;
-  }
-  .modal-close:hover { background: var(--sand); color: var(--ink); }
-
-  .modal-body { padding: 24px 28px; }
-
-  /* Resumo da cobrança no modal */
-  .pix-resumo {
-    background: var(--warm);
-    border-radius: var(--radius-sm);
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .pix-resumo-left {}
-  .pix-resumo-left .mes { font-weight: 600; font-size: 15px; }
-  .pix-resumo-left .desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .pix-resumo-valor { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; }
-
-  /* QR Code área */
-  .qr-section {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .qr-label { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
-
-  .qr-box {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    background: #fff;
-    border: 2px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    gap: 12px;
-  }
-
-  /* QR Code SVG gerado dinamicamente */
-  #qr-canvas { width: 180px; height: 180px; }
-
-  .qr-pix-logo {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--green);
-  }
-  .pix-icon {
-    width: 20px; height: 20px;
-    background: var(--green);
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    transform: rotate(45deg);
-  }
-
-  /* Código Pix copia-e-cola */
-  .pix-copia {
-    margin-bottom: 20px;
-  }
-  .pix-copia label {
-    display: block;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 7px;
-  }
-  .pix-copia-box {
-    display: flex;
-    gap: 8px;
-  }
-  .pix-copia-input {
-    flex: 1;
-    background: var(--warm);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    font-family: 'Courier New', monospace;
-    font-size: 11px;
-    color: var(--ink);
-    outline: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .btn-copiar {
-    padding: 10px 18px;
-    background: var(--brown);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background 0.18s;
-  }
-  .btn-copiar:hover { background: var(--brown-light); }
-  .btn-copiar.copiado { background: var(--green); }
-
-  /* Dados do destinatário */
-  .pix-dados {
-    background: var(--warm);
-    border-radius: var(--radius-sm);
-    padding: 14px 18px;
-    margin-bottom: 20px;
-  }
-  .pix-dados-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .pix-dado-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-  .pix-dado-row:last-child { margin-bottom: 0; }
-  .pix-dado-key { color: var(--muted); }
-  .pix-dado-val { font-weight: 600; }
-
-  /* Steps de instrução */
-  .pix-steps { margin-bottom: 24px; }
-  .pix-steps-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-  .step {
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-    margin-bottom: 10px;
-    font-size: 13px;
-    color: var(--ink);
-    line-height: 1.4;
-  }
-  .step-num {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: var(--brown);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
-
-  /* Confirmação simulada */
-  .btn-confirmar {
-    width: 100%;
-    padding: 14px;
-    background: var(--green);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.18s, transform 0.15s;
-  }
-  .btn-confirmar:hover { background: #1b5e3a; transform: translateY(-1px); }
-
-  .aviso {
-    margin-top: 12px;
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.5;
-  }
-
-  /* ── MODAL SUCESSO ── */
-  .sucesso-body {
-    padding: 48px 32px;
-    text-align: center;
-  }
-  .sucesso-icon {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    background: var(--green-bg);
-    margin: 0 auto 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 36px;
-    animation: bounceIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
-  }
-  @keyframes bounceIn {
-    from { transform: scale(0); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-  .sucesso-body h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 500;
-    margin-bottom: 8px;
-    letter-spacing: -0.3px;
-  }
-  .sucesso-body p { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 28px; }
-  .btn-fechar {
-    padding: 12px 32px;
-    background: var(--brown);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.18s;
-  }
-  .btn-fechar:hover { background: var(--brown-light); }
-
-  /* Comprovante simplificado */
-  .comprovante-mini {
-    background: var(--warm);
-    border-radius: var(--radius-sm);
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    text-align: left;
-  }
-  .comp-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
-  .comp-row:last-child { margin-bottom: 0; border-top: 1px solid var(--sand); padding-top: 8px; font-weight: 700; }
-
-  /* Empty state */
-  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
-  .empty-icon { font-size: 48px; margin-bottom: 12px; }
-  .empty p { font-size: 14px; line-height: 1.6; }
-
-  /* Sem imóvel */
-  #sem-imovel { display: none; }
-
-  /* Toast */
-  #toast {
-    position: fixed; bottom: 28px; right: 28px;
-    background: var(--ink); color: #fff;
-    padding: 12px 20px; border-radius: 10px;
-    font-size: 14px; font-weight: 500;
-    z-index: 9999; opacity: 0; transform: translateY(20px);
-    transition: all 0.3s; pointer-events: none;
-  }
-  #toast.show { opacity: 1; transform: translateY(0); }
-
-  @media (max-width: 640px) {
-    #tela-login { grid-template-columns: 1fr; }
-    .login-left { display: none; }
-    .portal-body { padding: 24px 16px 60px; }
-    .imovel-card { grid-template-columns: 1fr; }
-    .topbar { padding: 0 20px; }
-  }
+  .divider{height:1px;background:var(--border);margin:20px 0}
+  .text-muted{color:var(--muted);font-size:13px}
+  .section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:600;margin-bottom:16px}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ TELA DE LOGIN ═══════════════ -->
-<div id="tela-login">
-  <div class="login-left">
-    <div class="brand">Aluguel<span>PRO</span></div>
-    <div class="login-left-body">
-      <h1>Seu lar,<br><em>na palma</em><br>da mão.</h1>
-      <p>Acesse sua conta para visualizar cobranças, histórico de pagamentos e efetuar o Pix do seu aluguel com facilidade.</p>
+<!-- ══ SETUP OVERLAY ══ -->
+<div id="setup-overlay">
+  <div class="setup-box">
+    <div class="setup-logo">Aluguel<span>PRO</span></div>
+    <h2>Conectar ao banco de dados</h2>
+    <p>Cole as credenciais do seu projeto no <a class="setup-link" href="https://supabase.com" target="_blank">Supabase</a>. Você só precisa fazer isso uma vez.</p>
+    <div class="setup-step"><div class="setup-num">1</div><span>Acesse <strong>supabase.com</strong>, crie uma conta gratuita e clique em <strong>New Project</strong>.</span></div>
+    <div class="setup-step"><div class="setup-num">2</div><span>Aguarde o projeto criar. Vá em <strong>Project Settings → API</strong>.</span></div>
+    <div class="setup-step"><div class="setup-num">3</div><span>Copie a <strong>Project URL</strong> e a chave <strong>anon public</strong> e cole abaixo.</span></div>
+    <div class="setup-step"><div class="setup-num">4</div><span>Clique em <strong>Conectar e criar tabelas</strong> — o sistema cria tudo automaticamente.</span></div>
+    <div class="setup-input-group">
+      <label class="setup-label">Project URL</label>
+      <input class="setup-input" id="setup-url" placeholder="https://xxxxxxxxxxx.supabase.co">
+      <label class="setup-label">Anon Key (public)</label>
+      <input class="setup-input" id="setup-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
     </div>
-    <div class="login-pills">
-      <span class="pill">✔ Histórico de pagamentos</span>
-      <span class="pill">✔ Pix integrado</span>
-      <span class="pill">✔ Comprovantes</span>
-    </div>
-  </div>
-
-  <div class="login-right">
-    <div class="login-box">
-      <h2>Entrar no portal</h2>
-      <p>Use seu CPF e data de nascimento para acessar.</p>
-
-      <div class="form-group">
-        <label class="form-label">CPF (Login)</label>
-        <input class="form-input" id="login-cpf" type="text" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)" onkeydown="enterLogin(event)">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Data de Nascimento (Senha)</label>
-        <input class="form-input" id="login-nasc" type="date" onkeydown="enterLogin(event)">
-      </div>
-
-      <button class="btn-login" onclick="fazerLogin()">Entrar →</button>
-
-      <div class="login-error" id="login-error">
-        CPF ou data de nascimento incorretos. Verifique seus dados.
-      </div>
-
-      <div class="login-hint">
-        💡 <strong>Primeiro acesso?</strong> Seu login é o CPF cadastrado e a senha é sua data de nascimento. Em caso de dúvida, fale com o proprietário.
-      </div>
-    </div>
+    <button class="setup-btn" onclick="conectar()">Conectar e criar tabelas →</button>
+    <div class="setup-err" id="setup-err"></div>
   </div>
 </div>
 
-<!-- ═══════════════ PORTAL DO MORADOR ═══════════════ -->
-<div id="tela-portal">
-  <div class="topbar">
-    <div class="topbar-brand">Aluguel<span>PRO</span></div>
-    <div class="topbar-right">
-      <div class="topbar-user">
-        <div class="avatar" id="portal-avatar">?</div>
-        <span id="portal-nome-top"></span>
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar">
+  <div class="logo">Aluguel<span>PRO</span></div>
+  <div class="nav">
+    <button class="nav-item active" onclick="goTo('dashboard')"><span class="icon">◈</span> Dashboard</button>
+    <button class="nav-item" onclick="goTo('clientes')"><span class="icon">👤</span> Clientes</button>
+    <button class="nav-item" onclick="goTo('imoveis')"><span class="icon">🏠</span> Imóveis</button>
+    <button class="nav-item" onclick="goTo('pagamentos')"><span class="icon">💳</span> Pagamentos</button>
+    <button class="nav-item" onclick="goTo('relatorios')"><span class="icon">📊</span> Relatórios</button>
+    <button class="nav-item" onclick="goTo('configuracoes')"><span class="icon">⚙️</span> Configurações</button>
+  </div>
+  <div class="sidebar-footer">
+    <div class="db-status"><div class="dot" id="db-dot"></div><span id="db-label">Conectando...</span></div>
+    AluguelPRO v2.0
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main id="main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div><div class="page-title">Dashboard</div><div class="page-sub" id="dash-date"></div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card green"><div class="stat-label">Contratos Ativos</div><div class="stat-value green" id="stat-ativos">—</div></div>
+      <div class="stat-card blue"><div class="stat-label">Pagamentos em Dia</div><div class="stat-value blue" id="stat-dia">—</div></div>
+      <div class="stat-card warn"><div class="stat-label">Pendentes</div><div class="stat-value warn" id="stat-pend">—</div></div>
+      <div class="stat-card red"><div class="stat-label">Atrasados</div><div class="stat-value red" id="stat-atr">—</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">💰 Recebimentos do Mês</div></div>
+        <div style="padding:20px;">
+          <div style="font-family:Syne,sans-serif;font-size:32px;font-weight:700;color:var(--accent)" id="dash-recebido">R$ —</div>
+          <div class="text-muted" style="margin-top:4px">Total arrecadado no mês atual</div>
+          <div class="divider"></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px"><span class="text-muted">A receber</span><span id="dash-areceber" style="color:var(--warn)">R$ —</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:14px;"><span class="text-muted">Total previsto</span><span id="dash-previsto">R$ —</span></div>
+        </div>
       </div>
-      <button class="btn-sair" onclick="sair()">Sair</button>
+      <div class="table-wrap">
+        <div class="table-header"><div class="table-title">⚠️ Inadimplentes</div></div>
+        <div style="padding:16px 20px;" id="dash-inadimplentes"><div class="empty"><div class="icon">⏳</div><p>Carregando...</p></div></div>
+      </div>
     </div>
   </div>
 
-  <div class="portal-body">
-    <!-- SAUDAÇÃO -->
-    <div class="greeting">
-      <h2 id="portal-saudacao">Olá!</h2>
-      <p id="portal-sub">Aqui estão suas informações de aluguel.</p>
-    </div>
-
-    <!-- SEM IMÓVEL -->
-    <div id="sem-imovel">
-      <div class="empty">
-        <div class="empty-icon">🏠</div>
-        <p>Você não possui nenhum imóvel vinculado à sua conta no momento.<br>Entre em contato com o proprietário.</p>
+  <!-- CLIENTES -->
+  <div id="page-clientes" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Clientes</div><div class="page-sub">Cadastro e gestão de moradores</div></div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="search-box"><input type="text" id="busca-clientes" placeholder="Buscar cliente..." oninput="renderClientes()"></div>
+        <button class="btn btn-primary" onclick="abrirModalCliente()">+ Novo Cliente</button>
       </div>
     </div>
-
-    <!-- COM IMÓVEL -->
-    <div id="com-imovel">
-      <!-- Card do imóvel -->
-      <div class="imovel-card" id="portal-imovel-card">
-        <div>
-          <div class="imovel-label">Seu imóvel</div>
-          <div class="imovel-name" id="p-imovel-nome">—</div>
-          <div class="imovel-addr" id="p-imovel-addr">—</div>
-        </div>
-        <div>
-          <div class="imovel-valor-label">Aluguel mensal</div>
-          <div class="imovel-valor" id="p-imovel-valor">—</div>
-          <div class="imovel-venc" id="p-imovel-venc">—</div>
-        </div>
-      </div>
-
-      <!-- COBRANÇAS -->
-      <div class="section-title">Cobranças</div>
-      <div class="cobranca-list" id="lista-cobrancas"></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Código</th><th>Nome</th><th>CPF</th><th>Telefone</th><th>E-mail</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-clientes"><tr class="loading-row"><td colspan="7"><span class="spinner"></span>Carregando...</td></tr></tbody></table>
     </div>
   </div>
-</div>
 
-<!-- ═══════════════ MODAL PIX ═══════════════ -->
-<div class="modal-overlay" id="modal-pix">
-  <div class="modal">
-    <div class="modal-head">
-      <h3>Pagar com Pix</h3>
-      <button class="modal-close" onclick="fecharModal('modal-pix')">✕</button>
-    </div>
-    <div class="modal-body">
-      <!-- Resumo -->
-      <div class="pix-resumo">
-        <div class="pix-resumo-left">
-          <div class="mes" id="pix-mes">—</div>
-          <div class="desc" id="pix-imovel-desc">—</div>
-        </div>
-        <div class="pix-resumo-valor" id="pix-valor">R$ 0,00</div>
+  <!-- IMÓVEIS -->
+  <div id="page-imoveis" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Imóveis</div><div class="page-sub">Cadastro de propriedades e vínculos</div></div>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div class="search-box"><input type="text" id="busca-imoveis" placeholder="Buscar imóvel..." oninput="renderImoveis()"></div>
+        <button class="btn btn-primary" onclick="abrirModalImovel()">+ Novo Imóvel</button>
       </div>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>ID</th><th>Identificação</th><th>Endereço</th><th>Morador</th><th>Aluguel</th><th>Vencimento</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-imoveis"><tr class="loading-row"><td colspan="7"><span class="spinner"></span>Carregando...</td></tr></tbody></table>
+    </div>
+  </div>
 
-      <!-- QR Code -->
-      <div class="qr-section">
-        <div class="qr-label">Escaneie o QR Code com o app do seu banco</div>
-        <div class="qr-box">
-          <canvas id="qr-canvas" width="180" height="180"></canvas>
-          <div class="qr-pix-logo">
-            <div class="pix-icon">P</div>
-            Pix
+  <!-- PAGAMENTOS -->
+  <div id="page-pagamentos" class="page">
+    <div class="page-header">
+      <div><div class="page-title">Pagamentos</div><div class="page-sub">Registre e acompanhe mensalidades</div></div>
+      <button class="btn btn-primary" onclick="abrirModalPagamento()">+ Registrar Pagamento</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="filtrarPag('todos',this)">Todos</button>
+      <button class="tab" onclick="filtrarPag('aguardando',this)" id="tab-aguardando">🕐 Aguardando</button>
+      <button class="tab" onclick="filtrarPag('pago',this)">Pagos</button>
+      <button class="tab" onclick="filtrarPag('pendente',this)">Pendentes</button>
+      <button class="tab" onclick="filtrarPag('atrasado',this)">Atrasados</button>
+    </div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Mês/Ano</th><th>Imóvel</th><th>Morador</th><th>Valor</th><th>Vencimento</th><th>Data Pag.</th><th>Forma</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="tbody-pagamentos"><tr class="loading-row"><td colspan="9"><span class="spinner"></span>Carregando...</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <!-- RELATÓRIOS -->
+  <div id="page-relatorios" class="page">
+    <div class="page-header"><div><div class="page-title">Relatórios</div><div class="page-sub">Visão geral do portfólio</div></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+      <div class="table-wrap"><div class="table-header"><div class="table-title">🏆 Situação dos Imóveis</div></div><div style="padding:20px;" id="rel-imoveis"></div></div>
+      <div class="table-wrap"><div class="table-header"><div class="table-title">📋 Histórico de Pagamentos</div></div><div style="padding:20px;" id="rel-historico"></div></div>
+    </div>
+  </div>
+
+  <!-- CONFIGURAÇÕES -->
+  <div id="page-configuracoes" class="page">
+    <div class="page-header"><div><div class="page-title">Configurações</div><div class="page-sub">Dados do proprietário e regras financeiras</div></div></div>
+    <div class="config-grid">
+      <div class="config-card">
+        <div class="config-card-header"><div class="config-card-icon">💠</div><div><div class="config-card-title">Chave Pix</div><div class="text-muted" style="font-size:12px;margin-top:2px">Recebimento dos moradores</div></div></div>
+        <div class="config-card-body">
+          <div class="form-row single"><div class="form-group"><label class="form-label">Nome do Recebedor *</label><input class="form-control" id="cfg-pix-nome" placeholder="Nome completo" oninput="atualizarPreviewPix()"></div></div>
+          <div class="form-row single"><div class="form-group"><label class="form-label">Banco / Instituição</label><input class="form-control" id="cfg-pix-banco" placeholder="Ex: Nubank, BB..." oninput="atualizarPreviewPix()"></div></div>
+          <div class="form-group" style="margin-bottom:16px">
+            <label class="form-label">Tipo de Chave *</label>
+            <div class="pix-tipo-grid">
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('cpf',this)">📄 CPF/CNPJ</button>
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('telefone',this)">📱 Telefone</button>
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('email',this)">✉️ E-mail</button>
+              <button class="pix-tipo-btn" onclick="selecionarTipoPix('aleatoria',this)">🔑 Aleatória</button>
+            </div>
+          </div>
+          <div class="form-row single"><div class="form-group"><label class="form-label" id="cfg-pix-chave-label">Chave Pix *</label><input class="form-control" id="cfg-pix-chave" placeholder="Digite a chave" oninput="atualizarPreviewPix()"></div></div>
+          <div class="pix-preview">
+            <div class="pix-preview-title">Pré-visualização</div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Nome</span><span class="pix-preview-val" id="prev-nome">—</span></div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Banco</span><span class="pix-preview-val" id="prev-banco">—</span></div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Tipo</span><span class="pix-preview-val" id="prev-tipo">—</span></div>
+            <div class="pix-preview-row"><span class="pix-preview-key">Chave</span><span class="pix-preview-val" id="prev-chave">—</span></div>
+            <div id="prev-status"></div>
+          </div>
+        </div>
+        <div class="config-card-footer"><button class="btn btn-secondary" onclick="carregarConfigPix()">Cancelar</button><button class="btn btn-primary" onclick="salvarConfigPix()">💾 Salvar Pix</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:24px;">
+        <div class="config-card">
+          <div class="config-card-header"><div class="config-card-icon">📐</div><div><div class="config-card-title">Regras de Cobrança</div><div class="text-muted" style="font-size:12px;margin-top:2px">Multas e juros por atraso</div></div></div>
+          <div class="config-card-body">
+            <div class="multa-row"><div><div class="multa-label">Multa por atraso</div><div class="multa-sub">Aplicada uma única vez</div></div><div class="multa-input-wrap"><input class="multa-input" id="cfg-multa" type="number" min="0" max="100" step="0.1" value="2"><span class="multa-unit">%</span></div></div>
+            <div class="multa-row"><div><div class="multa-label">Juros ao dia</div><div class="multa-sub">Acumulado por dia de atraso</div></div><div class="multa-input-wrap"><input class="multa-input" id="cfg-juros" type="number" min="0" max="10" step="0.001" value="0.033"><span class="multa-unit">%/dia</span></div></div>
+          </div>
+          <div class="config-card-footer"><button class="btn btn-primary" onclick="salvarConfigFinanceira()">💾 Salvar Regras</button></div>
+        </div>
+        <div class="config-card">
+          <div class="config-card-header"><div class="config-card-icon">🔗</div><div><div class="config-card-title">Status da Integração</div><div class="text-muted" style="font-size:12px;margin-top:2px">Portal do morador</div></div></div>
+          <div class="config-card-body"><div id="integracao-status"></div><div style="margin-top:16px;padding:14px 16px;background:var(--surface2);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);line-height:1.6">💡 O portal do morador usa o mesmo banco de dados. Basta hospedar os dois arquivos e eles já estão integrados automaticamente.</div></div>
+        </div>
+        <div class="config-card">
+          <div class="config-card-header"><div class="config-card-icon">🗄️</div><div><div class="config-card-title">Banco de Dados</div><div class="text-muted" style="font-size:12px;margin-top:2px">Supabase</div></div></div>
+          <div class="config-card-body">
+            <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Para trocar de banco de dados ou reconectar:</div>
+            <button class="btn btn-secondary" style="width:100%" onclick="localStorage.removeItem('aluguel_supabase');location.reload()">🔄 Reconfigurar conexão</button>
           </div>
         </div>
       </div>
-
-      <!-- Dados do recebedor -->
-      <div class="pix-dados">
-        <div class="pix-dados-title">Dados do recebedor</div>
-        <div class="pix-dado-row">
-          <span class="pix-dado-key">Nome</span>
-          <span class="pix-dado-val" id="pix-dest-nome">—</span>
-        </div>
-        <div class="pix-dado-row">
-          <span class="pix-dado-key">Chave Pix</span>
-          <span class="pix-dado-val" id="pix-dest-chave">—</span>
-        </div>
-        <div class="pix-dado-row">
-          <span class="pix-dado-key">Banco</span>
-          <span class="pix-dado-val" id="pix-dest-banco">—</span>
-        </div>
-      </div>
-
-      <!-- Pix copia e cola -->
-      <div class="pix-copia">
-        <label>Pix Copia e Cola</label>
-        <div class="pix-copia-box">
-          <input class="pix-copia-input" id="pix-codigo" readonly>
-          <button class="btn-copiar" id="btn-copiar" onclick="copiarPix()">Copiar</button>
-        </div>
-      </div>
-
-      <!-- Passos -->
-      <div class="pix-steps">
-        <div class="pix-steps-title">Como pagar</div>
-        <div class="step"><div class="step-num">1</div><span>Abra o app do seu banco e acesse a área Pix.</span></div>
-        <div class="step"><div class="step-num">2</div><span>Escolha <strong>Pagar com QR Code</strong> ou <strong>Copia e Cola</strong>.</span></div>
-        <div class="step"><div class="step-num">3</div><span>Escaneie o código acima ou cole o código Pix.</span></div>
-        <div class="step"><div class="step-num">4</div><span>Confirme os dados e o valor. Clique em pagar.</span></div>
-        <div class="step"><div class="step-num">5</div><span>Após o pagamento, clique em <strong>"Já realizei o Pix"</strong> abaixo.</span></div>
-      </div>
-
-      <!-- Confirmação -->
-      <button class="btn-confirmar" onclick="confirmarPagamento()">✔ Já realizei o Pix</button>
-      <p class="aviso">Após confirmar, o pagamento será registrado e você poderá visualizar o comprovante. Em caso de dúvida, entre em contato com o proprietário.</p>
     </div>
   </div>
-</div>
 
-<!-- ═══════════════ MODAL SUCESSO ═══════════════ -->
-<div class="modal-overlay" id="modal-sucesso">
+</main>
+
+<!-- MODAL CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
   <div class="modal">
-    <div class="sucesso-body">
-      <div class="sucesso-icon">✅</div>
-      <h3>Pagamento confirmado!</h3>
-      <p>Seu pagamento foi registrado com sucesso.<br>Guarde o comprovante do seu banco como prova da transação.</p>
-      <div class="comprovante-mini" id="comp-mini"></div>
-      <button class="btn-fechar" onclick="fecharSucesso()">Fechar</button>
+    <div class="modal-head"><div class="modal-title" id="modal-cliente-title">Novo Cliente</div><button class="modal-close" onclick="fecharModal('modal-cliente')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-cliente-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Nome Completo *</label><input class="form-control" id="c-nome" placeholder="Nome do morador"></div>
+        <div class="form-group"><label class="form-label">CPF *</label><input class="form-control" id="c-cpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCPF(this)"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">RG</label><input class="form-control" id="c-rg" placeholder="00.000.000-0"></div>
+        <div class="form-group"><label class="form-label">Data de Nascimento * <span style="color:var(--muted);font-weight:400;font-size:11px">(senha do portal)</span></label><input class="form-control" id="c-datanasc" type="date"></div>
+      </div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Telefone *</label><input class="form-control" id="c-telefone" placeholder="(85) 99999-9999" maxlength="15" oninput="maskTel(this)"></div></div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">E-mail</label><input class="form-control" id="c-email" type="email" placeholder="email@exemplo.com"></div></div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Status</label><select class="form-control" id="c-status"><option value="ativo">Ativo</option><option value="inativo">Inativo</option></select></div></div>
     </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modal-cliente')">Cancelar</button><button class="btn btn-primary" onclick="salvarCliente()">Salvar Cliente</button></div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- MODAL IMÓVEL -->
+<div class="modal-overlay" id="modal-imovel">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title" id="modal-imovel-title">Novo Imóvel</div><button class="modal-close" onclick="fecharModal('modal-imovel')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-imovel-id">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Identificação *</label><input class="form-control" id="i-ident" placeholder="Ex: Casa A, Ap. 02"></div>
+        <div class="form-group"><label class="form-label">Bairro *</label><input class="form-control" id="i-bairro" placeholder="Ex: Centro"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Rua *</label><input class="form-control" id="i-rua" placeholder="Nome da rua"></div>
+        <div class="form-group"><label class="form-label">Número *</label><input class="form-control" id="i-numero" placeholder="Ex: 123"></div>
+      </div>
+      <div class="form-row single"><div class="form-group"><label class="form-label">Morador</label><select class="form-control" id="i-cliente"><option value="">— Sem morador —</option></select></div></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Valor do Aluguel (R$) *</label><input class="form-control" id="i-valor" type="number" min="0" placeholder="0,00"></div>
+        <div class="form-group"><label class="form-label">Dia de Vencimento *</label><input class="form-control" id="i-vencimento" type="number" min="1" max="31" placeholder="Ex: 10"></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modal-imovel')">Cancelar</button><button class="btn btn-primary" onclick="salvarImovel()">Salvar Imóvel</button></div>
+  </div>
+</div>
+
+<!-- MODAL PAGAMENTO -->
+<div class="modal-overlay" id="modal-pagamento">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Registrar Pagamento</div><button class="modal-close" onclick="fecharModal('modal-pagamento')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-row single"><div class="form-group"><label class="form-label">Imóvel *</label><select class="form-control" id="p-imovel" onchange="preencherDadosPagamento()"><option value="">Selecione o imóvel</option></select></div></div>
+      <div id="p-info-box" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;margin-bottom:16px;font-size:13px;color:var(--muted)"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Mês de Referência *</label><input class="form-control" id="p-mes" type="month"></div>
+        <div class="form-group"><label class="form-label">Data do Pagamento *</label><input class="form-control" id="p-data" type="date"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Valor Pago (R$) *</label><input class="form-control" id="p-valor" type="number" min="0" placeholder="0,00"></div>
+        <div class="form-group"><label class="form-label">Forma de Pagamento *</label><select class="form-control" id="p-forma"><option>Pix</option><option>Dinheiro</option><option>Boleto</option><option>Transferência</option><option>Cartão</option></select></div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modal-pagamento')">Cancelar</button><button class="btn btn-primary" onclick="salvarPagamento()">✔ Confirmar Pagamento</button></div>
+  </div>
+</div>
+
+<!-- MODAL COMPROVANTE -->
+<div class="modal-overlay" id="modal-comprovante">
+  <div class="modal">
+    <div class="modal-head"><div class="modal-title">Comprovante de Pagamento</div><button class="modal-close" onclick="fecharModal('modal-comprovante')">✕</button></div>
+    <div class="modal-body"><div id="comprovante-content"></div></div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="fecharModal('modal-comprovante')">Fechar</button><button class="btn btn-primary" onclick="imprimirComprovante()">🖨 Imprimir</button></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
-// ──────────────────────────────────────────────
-//  BASE DE DADOS — compartilhada com sistema do dono
-//  Tenta ler do localStorage; se não existir, usa dados demo
-// ──────────────────────────────────────────────
+// ═══════════════════════════════════════════════
+//  SUPABASE — camada de dados
+// ═══════════════════════════════════════════════
+let SB_URL = '', SB_KEY = '';
 
-// Lê a chave Pix configurada pelo proprietário no sistema de gestão
-function getPIXConfig() {
-  try {
-    const saved = localStorage.getItem('aluguel_pro_pix');
-    if (saved) return JSON.parse(saved);
-  } catch(e) {}
-  return null;
+function sbHeaders() {
+  return { 'Content-Type':'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
 }
 
-let db = {
-  clientes: [],
-  imoveis: [],
-  pagamentos: [],
-  nextCliente: 1,
-  nextImovel: 1,
-  nextPag: 1
-};
-
-function carregarDB() {
-  try {
-    const saved = localStorage.getItem('aluguel_pro_db');
-    if (saved) { db = JSON.parse(saved); return; }
-  } catch(e) {}
-  // DADOS DEMO se não há sistema de gestão conectado
-  db = {
-    nextCliente: 4, nextImovel: 4, nextPag: 10,
-    clientes: [
-      { id:1, codigo:'CLI-0001', nome:'Maria Aparecida Santos', cpf:'123.456.789-00', dataNasc:'1985-03-15', telefone:'(85) 98765-4321', email:'maria@email.com', status:'ativo' },
-      { id:2, codigo:'CLI-0002', nome:'João Pedro Oliveira', cpf:'987.654.321-00', dataNasc:'1990-07-22', telefone:'(85) 91234-5678', email:'joao@email.com', status:'ativo' },
-      { id:3, codigo:'CLI-0003', nome:'Ana Lima', cpf:'456.789.123-00', dataNasc:'1978-11-08', telefone:'(85) 99876-5432', email:'ana@email.com', status:'ativo' },
-    ],
-    imoveis: [
-      { id:1, identificacao:'Casa A', bairro:'Messejana', rua:'Rua das Flores', numero:'120', clienteCod:'CLI-0001', valor:800, vencimento:10 },
-      { id:2, identificacao:'Ap. 02', bairro:'Aldeota', rua:'Av. Santos Dumont', numero:'3400', clienteCod:'CLI-0002', valor:1200, vencimento:5 },
-      { id:3, identificacao:'Casa B', bairro:'Jangurussu', rua:'Rua Projetada', numero:'45', clienteCod:'CLI-0003', valor:650, vencimento:15 },
-    ],
-    pagamentos: []
-  };
+async function sbGet(table, query='') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?${query}&order=id.asc`, { headers: sbHeaders() });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 
-function salvarDB() {
-  try { localStorage.setItem('aluguel_pro_db', JSON.stringify(db)); } catch(e) {}
-}
-
-// ──────────────────────────────────────────────
-//  HELPERS
-// ──────────────────────────────────────────────
-function fmtMoeda(v) {
-  return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-}
-function fmtMes(m) {
-  const meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const [y,mo] = m.split('-');
-  return meses[parseInt(mo)-1] + ' de ' + y;
-}
-function fmtData(d) {
-  if (!d) return '—';
-  const [y,m,day] = d.split('-');
-  return `${day}/${m}/${y}`;
-}
-function maskCPF(i) {
-  let v = i.value.replace(/\D/g,'').slice(0,11);
-  v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-  i.value = v;
-}
-function enterLogin(e) { if (e.key === 'Enter') fazerLogin(); }
-
-function toast(msg, tipo='ok') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.background = tipo === 'err' ? '#c1121f' : '#2d6a4f';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function saudacao() {
-  const h = new Date().getHours();
-  if (h < 12) return 'Bom dia';
-  if (h < 18) return 'Boa tarde';
-  return 'Boa noite';
-}
-
-function statusPag(pag, imovel) {
-  if (pag && pag.dataPag) return 'pago';
-  const hoje = new Date();
-  const [y,m] = (pag?.mesRef || new Date().toISOString().slice(0,7)).split('-').map(Number);
-  const venc = new Date(y, m-1, imovel.vencimento);
-  return hoje > venc ? 'atrasado' : 'pendente';
-}
-
-// ──────────────────────────────────────────────
-//  LOGIN
-// ──────────────────────────────────────────────
-let moradorLogado = null;
-let imovelLogado = null;
-
-function fazerLogin() {
-  const cpf = document.getElementById('login-cpf').value.trim();
-  const nasc = document.getElementById('login-nasc').value.trim();
-  const err = document.getElementById('login-error');
-  err.style.display = 'none';
-
-  if (!cpf || !nasc) { err.textContent = 'Preencha CPF e data de nascimento.'; err.style.display = 'block'; return; }
-
-  const cliente = db.clientes.find(c => c.cpf === cpf && c.dataNasc === nasc && c.status === 'ativo');
-  if (!cliente) { err.style.display = 'block'; return; }
-
-  moradorLogado = cliente;
-  imovelLogado = db.imoveis.find(i => i.clienteCod === cliente.codigo) || null;
-
-  entrarPortal();
-}
-
-function entrarPortal() {
-  document.getElementById('tela-login').style.display = 'none';
-  document.getElementById('tela-portal').style.display = 'block';
-
-  const nome = moradorLogado.nome.split(' ')[0];
-  const iniciais = moradorLogado.nome.split(' ').map(n=>n[0]).slice(0,2).join('');
-  document.getElementById('portal-avatar').textContent = iniciais;
-  document.getElementById('portal-nome-top').textContent = moradorLogado.nome;
-  document.getElementById('portal-saudacao').textContent = `${saudacao()}, ${nome}! 👋`;
-  document.getElementById('portal-sub').textContent = `${new Date().toLocaleDateString('pt-BR', {weekday:'long', day:'numeric', month:'long', year:'numeric'})}`;
-
-  if (!imovelLogado) {
-    document.getElementById('sem-imovel').style.display = 'block';
-    document.getElementById('com-imovel').style.display = 'none';
-  } else {
-    document.getElementById('sem-imovel').style.display = 'none';
-    document.getElementById('com-imovel').style.display = 'block';
-    renderPortal();
-  }
-}
-
-function sair() {
-  moradorLogado = null; imovelLogado = null;
-  document.getElementById('tela-login').style.display = 'grid';
-  document.getElementById('tela-portal').style.display = 'none';
-  document.getElementById('login-cpf').value = '';
-  document.getElementById('login-nasc').value = '';
-  document.getElementById('login-error').style.display = 'none';
-}
-
-// ──────────────────────────────────────────────
-//  PORTAL — RENDER
-// ──────────────────────────────────────────────
-function renderPortal() {
-  const im = imovelLogado;
-  document.getElementById('p-imovel-nome').textContent = im.identificacao;
-  document.getElementById('p-imovel-addr').textContent = `${im.rua}, ${im.numero} — ${im.bairro}`;
-  document.getElementById('p-imovel-valor').textContent = fmtMoeda(im.valor);
-  document.getElementById('p-imovel-venc').textContent = `Vence todo dia ${im.vencimento}`;
-
-  // Gerar cobranças dos últimos 3 meses + mês atual
-  const hoje = new Date();
-  const meses = [];
-  for (let i = 2; i >= 0; i--) {
-    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
-    meses.push(d.toISOString().slice(0,7));
-  }
-  // Garantir que pagamentos pendentes existam no db
-  meses.forEach(mes => {
-    const existe = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mes);
-    if (!existe) {
-      db.pagamentos.push({ id: db.nextPag++, imovelId: im.id, mesRef: mes, dataPag: null, valorPago: null, forma: 'Pix', clienteCod: moradorLogado.codigo, registradoEm: null });
-      salvarDB();
-    }
+async function sbPost(table, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method:'POST', headers:{...sbHeaders(),'Prefer':'return=representation'}, body: JSON.stringify(body)
   });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
 
-  const lista = document.getElementById('lista-cobrancas');
-  lista.innerHTML = '';
-  meses.reverse().forEach(mes => {
-    const pag = db.pagamentos.find(p => p.imovelId === im.id && p.mesRef === mes);
-    const st = statusPag(pag, im);
-    const icons = { pago:'✅', pendente:'🕐', atrasado:'❗' };
-    const labels = { pago:'Pago', pendente:'Pendente', atrasado:'Em atraso' };
-
-    const [y,m] = mes.split('-').map(Number);
-    const vencStr = `${String(im.vencimento).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
-
-    const div = document.createElement('div');
-    div.className = 'cobranca-item';
-    div.innerHTML = `
-      <div class="cob-status-icon ${st}">${icons[st]}</div>
-      <div class="cob-info">
-        <div class="cob-mes">${fmtMes(mes)}</div>
-        <div class="cob-detalhe">Vencimento: ${vencStr} · ${im.identificacao}</div>
-        ${st === 'atrasado' ? `<div style="font-size:12px;color:var(--red);margin-top:4px">⚠ Pagamento em atraso — multa e juros podem ser aplicados</div>` : ''}
-      </div>
-      <div class="cob-right">
-        <div class="cob-valor" style="color:${st==='atrasado'?'var(--red)':st==='pago'?'var(--green)':'var(--ink)'}">${fmtMoeda(im.valor)}</div>
-        <span class="cob-badge badge-${st}">${labels[st]}</span>
-        ${st !== 'pago' ? `<br><button class="btn-pagar" onclick="abrirPix('${mes}')">Pagar com Pix →</button>` : `<br><button class="btn-pagar" style="background:var(--brown-light);margin-top:10px" onclick="verComp('${mes}')">Ver comprovante</button>`}
-      </div>`;
-    lista.appendChild(div);
+async function sbPatch(table, id, body) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, {
+    method:'PATCH', headers:{...sbHeaders(),'Prefer':'return=representation'}, body: JSON.stringify(body)
   });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 
-// ──────────────────────────────────────────────
-//  PIX
-// ──────────────────────────────────────────────
-let pagAtual = null;
-
-function abrirPix(mes) {
-  const im = imovelLogado;
-  pagAtual = { mes, imovelId: im.id, valor: im.valor };
-
-  document.getElementById('pix-mes').textContent = fmtMes(mes);
-  document.getElementById('pix-imovel-desc').textContent = `${im.identificacao} · ${im.rua}, ${im.numero}`;
-  document.getElementById('pix-valor').textContent = fmtMoeda(im.valor);
-
-  const pixCfg = getPIXConfig();
-  if (!pixCfg) {
-    toast('Chave Pix ainda não configurada pelo proprietário.', 'err');
-    return;
-  }
-  document.getElementById('pix-dest-nome').textContent = pixCfg.nome;
-  document.getElementById('pix-dest-chave').textContent = pixCfg.chave;
-  document.getElementById('pix-dest-banco').textContent = pixCfg.banco || '—';
-
-  // Gerar código Pix copia-e-cola (formato EMV simplificado)
-  const codigoPix = gerarCodigoPix(im.valor, mes);
-  document.getElementById('pix-codigo').value = codigoPix;
-  document.getElementById('btn-copiar').textContent = 'Copiar';
-  document.getElementById('btn-copiar').classList.remove('copiado');
-
-  // Desenhar QR Code
-  desenharQR(codigoPix);
-
-  abrirModal('modal-pix');
+async function sbDelete(table, id) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`, { method:'DELETE', headers: sbHeaders() });
+  if (!r.ok) throw new Error(await r.text());
 }
 
-function gerarCodigoPix(valor, mes) {
-  // Payload Pix simplificado (demo — substitua por integração real)
-  const pixCfg = getPIXConfig() || { chave: '00000000000', nome: 'PROPRIETARIO' };
-  const chave = pixCfg.chave;
-  const nome = pixCfg.nome.slice(0,25).toUpperCase();
-  const cidade = 'FORTALEZA';
-  const desc = `ALUGUEL ${mes}`.slice(0,25);
-  const val = valor.toFixed(2);
-  const txid = 'ALG' + mes.replace('-','') + Math.floor(Math.random()*9999);
-
-  const gui = '0014BR.GOV.BCB.PIX';
-  const keyField = `0001${chave.replace(/\D/g,'').length.toString().padStart(2,'0')}${chave.replace(/\D/g,'')}`;
-  const addInfo = `0217${desc}50${String(txid.length).padStart(2,'0')}${txid}`;
-  const pixField = `${gui}${keyField}0217${addInfo}`;
-
-  let payload = `000201${String(pixField.length+4).padStart(2,'0')}${pixField}`;
-  payload += `52040000530398654${String(val.length).padStart(2,'0')}${val}`;
-  payload += `5802BR59${String(nome.length).padStart(2,'0')}${nome}60${String(cidade.length).padStart(2,'0')}${cidade}`;
-  payload += '6304';
-  payload += crc16(payload + '6304').toString(16).toUpperCase().padStart(4,'0');
-  return payload;
+async function sbRpc(fn, body={}) {
+  const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, {
+    method:'POST', headers: sbHeaders(), body: JSON.stringify(body)
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
 }
 
-function crc16(str) {
-  let crc = 0xFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
-    }
-  }
-  return crc & 0xFFFF;
-}
+// ═══════════════════════════════════════════════
+//  SETUP & TABELAS
+// ═══════════════════════════════════════════════
+async function conectar() {
+  const url = document.getElementById('setup-url').value.trim().replace(/\/$/, '');
+  const key = document.getElementById('setup-key').value.trim();
+  const errEl = document.getElementById('setup-err');
+  errEl.style.display = 'none';
+  if (!url || !key) { errEl.textContent = 'Preencha os dois campos.'; errEl.style.display = 'block'; return; }
 
-function desenharQR(texto) {
-  const canvas = document.getElementById('qr-canvas');
-  const ctx = canvas.getContext('2d');
-  const size = 180;
-  canvas.width = size; canvas.height = size;
+  SB_URL = url; SB_KEY = key;
 
-  // QR simplificado visual (padrão de módulos — use qrcode.js em produção)
-  // Para demo, geramos um padrão visual representativo
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0, 0, size, size);
-  ctx.fillStyle = '#1e1a14';
-
-  const modules = 29;
-  const mod = Math.floor(size / modules);
-  const offset = Math.floor((size - modules * mod) / 2);
-
-  // Gerar matriz pseudo-aleatória determinística a partir do texto
-  const seed = Array.from(texto).reduce((a,c) => a + c.charCodeAt(0), 0);
-  const rand = (i) => ((seed * 1103515245 + i * 12345) >>> 0) % 2;
-
-  for (let r = 0; r < modules; r++) {
-    for (let c = 0; c < modules; c++) {
-      // Finder patterns (cantos)
-      const inFinder = (
-        (r < 8 && c < 8) || (r < 8 && c >= modules-8) || (r >= modules-8 && c < 8)
+  try {
+    // Criar tabelas via SQL (usando endpoint de execução SQL do Supabase)
+    const sql = `
+      create table if not exists clientes (
+        id bigserial primary key,
+        codigo text unique not null,
+        nome text not null,
+        cpf text unique not null,
+        rg text,
+        data_nasc date,
+        telefone text,
+        email text,
+        status text default 'ativo',
+        created_at timestamptz default now()
       );
-      let dark = inFinder ? finderPattern(r, c, modules) : rand(r * modules + c);
-      if (dark) {
-        ctx.fillRect(offset + c * mod, offset + r * mod, mod - 1, mod - 1);
+      create table if not exists imoveis (
+        id bigserial primary key,
+        identificacao text not null,
+        rua text not null,
+        numero text not null,
+        bairro text not null,
+        cliente_cod text references clientes(codigo) on delete set null,
+        valor numeric not null default 0,
+        vencimento int not null default 10,
+        created_at timestamptz default now()
+      );
+      create table if not exists pagamentos (
+        id bigserial primary key,
+        imovel_id bigint references imoveis(id) on delete cascade,
+        cliente_cod text,
+        mes_ref text not null,
+        data_pag date,
+        valor_pago numeric,
+        forma text,
+        created_at timestamptz default now()
+      );
+      create table if not exists configuracoes (
+        id bigserial primary key,
+        chave text unique not null,
+        valor text not null
+      );
+    `;
+
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/exec_sql`, {
+      method:'POST', headers: sbHeaders(), body: JSON.stringify({ sql })
+    });
+
+    // Se não tiver a função exec_sql, tenta verificar se as tabelas já existem
+    if (!r.ok) {
+      // Tenta apenas ler a tabela clientes — se funcionar, tabelas já existem
+      const test = await fetch(`${SB_URL}/rest/v1/clientes?limit=1`, { headers: sbHeaders() });
+      if (!test.ok) {
+        errEl.innerHTML = `Não foi possível criar as tabelas automaticamente.<br>
+          Vá em <b>Supabase → SQL Editor</b> e execute o script do arquivo <b>SETUP_SUPABASE.sql</b> incluído no download.`;
+        errEl.style.display = 'block';
+        return;
       }
     }
-  }
 
-  // Timing patterns
-  for (let i = 8; i < modules - 8; i++) {
-    if (i % 2 === 0) {
-      ctx.fillRect(offset + i * mod, offset + 6 * mod, mod-1, mod-1);
-      ctx.fillRect(offset + 6 * mod, offset + i * mod, mod-1, mod-1);
-    }
+    localStorage.setItem('aluguel_supabase', JSON.stringify({ url, key }));
+    document.getElementById('setup-overlay').style.display = 'none';
+    inicializar();
+  } catch(e) {
+    errEl.textContent = 'Erro de conexão: ' + e.message;
+    errEl.style.display = 'block';
   }
 }
 
-function finderPattern(r, c, m) {
-  const inSquare = (r, c, r0, c0, size) => r >= r0 && r < r0+size && c >= c0 && c < c0+size;
-  const corners = [[0,0],[0,m-7],[m-7,0]];
-  for (const [rr, cc] of corners) {
-    if (inSquare(r,c,rr,cc,7)) {
-      const lr = r - rr, lc = c - cc;
-      if (lr === 0 || lr === 6 || lc === 0 || lc === 6) return 1;
-      if (lr >= 2 && lr <= 4 && lc >= 2 && lc <= 4) return 1;
-      return 0;
-    }
-  }
-  return -1;
+async function inicializar() {
+  document.getElementById('db-dot').className = 'dot';
+  document.getElementById('db-label').textContent = 'Supabase conectado';
+  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  await renderDashboard();
 }
 
-function copiarPix() {
-  const codigo = document.getElementById('pix-codigo').value;
-  navigator.clipboard.writeText(codigo).then(() => {
-    const btn = document.getElementById('btn-copiar');
-    btn.textContent = '✔ Copiado!';
-    btn.classList.add('copiado');
-    toast('Código Pix copiado!');
-  }).catch(() => {
-    document.getElementById('pix-codigo').select();
-    document.execCommand('copy');
-    toast('Código Pix copiado!');
+// ═══════════════════════════════════════════════
+//  CACHE local (evita recarregar o tempo todo)
+// ═══════════════════════════════════════════════
+let cache = { clientes:[], imoveis:[], pagamentos:[] };
+
+async function recarregar() {
+  cache.clientes  = await sbGet('clientes');
+  cache.imoveis   = await sbGet('imoveis');
+  cache.pagamentos= await sbGet('pagamentos');
+}
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function fmtMoeda(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}) }
+function fmtMes(m){ if(!m)return'—'; const [y,mo]=m.split('-'); return ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][parseInt(mo)-1]+'/'+y }
+function fmtData(d){ if(!d)return'—'; const [y,m,day]=d.split('-'); return`${day}/${m}/${y}` }
+function maskCPF(i){ let v=i.value.replace(/\D/g,'').slice(0,11); v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2'); i.value=v }
+function maskTel(i){ let v=i.value.replace(/\D/g,'').slice(0,11); v=v.replace(/(\d{2})(\d)/,'($1) $2').replace(/(\d{5})(\d)/,'$1-$2'); i.value=v }
+function clienteNome(cod){ const c=cache.clientes.find(x=>x.codigo===cod); return c?c.nome:'—' }
+
+function statusPagamento(pag) {
+  if (pag && pag.data_pag && pag.confirmado) return 'pago';
+  if (pag && pag.data_pag && !pag.confirmado) return 'aguardando';
+  const hoje=new Date(), [y,m]=(pag?.mes_ref||new Date().toISOString().slice(0,7)).split('-').map(Number);
+  const im=cache.imoveis.find(x=>x.id===pag?.imovel_id);
+  const venc=new Date(y,m-1,im?im.vencimento:10);
+  return hoje>venc?'atrasado':'pendente';
+}
+
+function calcularMulta(imovelId, mesRef) {
+  const hoje=new Date();
+  const im=cache.imoveis.find(x=>x.id===imovelId);
+  if(!im) return 0;
+  const [y,m]=mesRef.split('-').map(Number);
+  const venc=new Date(y,m-1,im.vencimento);
+  if(hoje<=venc) return 0;
+  const dias=Math.floor((hoje-venc)/86400000);
+  const cfg=getConfigFinanceira();
+  return im.valor*(cfg.multa/100) + im.valor*(cfg.juros/100)*dias;
+}
+
+function getConfigFinanceira(){ try{ const s=localStorage.getItem('aluguel_pro_financeiro'); if(s) return JSON.parse(s); }catch(e){} return{multa:2,juros:0.033}; }
+
+function toast(msg,tipo='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.background=tipo==='err'?'var(--danger)':'var(--accent)'; t.style.color=tipo==='err'?'#fff':'#0f0f0f';
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function loading(tbodyId, cols){ document.getElementById(tbodyId).innerHTML=`<tr class="loading-row"><td colspan="${cols}"><span class="spinner"></span>Carregando...</td></tr>` }
+
+// ═══════════════════════════════════════════════
+//  NAVEGAÇÃO
+// ═══════════════════════════════════════════════
+function goTo(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{ if(n.getAttribute('onclick').includes(page)) n.classList.add('active') });
+  if(page==='dashboard') renderDashboard();
+  if(page==='clientes') renderClientes();
+  if(page==='imoveis') renderImoveis();
+  if(page==='pagamentos') renderPagamentos();
+  if(page==='relatorios') renderRelatorios();
+  if(page==='configuracoes'){ carregarConfigPix(); carregarConfigFinanceira(); renderStatusIntegracao(); }
+}
+
+function abrirModal(id){ document.getElementById(id).classList.add('open') }
+function fecharModal(id){ document.getElementById(id).classList.remove('open') }
+document.querySelectorAll('.modal-overlay').forEach(m=>m.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open') }));
+
+// ═══════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════
+async function renderDashboard(){
+  await recarregar();
+  const mesAtual=new Date().toISOString().slice(0,7);
+  const ativos=cache.imoveis.filter(i=>i.cliente_cod).length;
+  let pagos=0,pend=0,atr=0,recebido=0,aReceber=0,previsto=0;
+  cache.imoveis.forEach(im=>{
+    if(!im.cliente_cod) return;
+    previsto+=Number(im.valor);
+    const pag=cache.pagamentos.find(p=>p.imovel_id===im.id&&p.mes_ref===mesAtual);
+    if(pag&&pag.data_pag&&pag.confirmado){ pagos++; recebido+=Number(pag.valor_pago); }
+    else if(pag&&pag.data_pag&&!pag.confirmado){ pend++; aReceber+=Number(im.valor); return; }
+    else {
+      aReceber+=Number(im.valor);
+      const venc=new Date(new Date().getFullYear(),new Date().getMonth(),im.vencimento);
+      if(new Date()>venc) atr++; else pend++;
+    }
+  });
+  document.getElementById('stat-ativos').textContent=ativos;
+  document.getElementById('stat-dia').textContent=pagos;
+  document.getElementById('stat-pend').textContent=pend;
+  document.getElementById('stat-atr').textContent=atr;
+  document.getElementById('dash-recebido').textContent=fmtMoeda(recebido);
+  document.getElementById('dash-areceber').textContent=fmtMoeda(aReceber);
+  document.getElementById('dash-previsto').textContent=fmtMoeda(previsto);
+  const cont=document.getElementById('dash-inadimplentes');
+  // Pagamentos aguardando confirmação
+  const aguardando=cache.imoveis.filter(im=>{
+    if(!im.cliente_cod) return false;
+    const pag=cache.pagamentos.find(p=>p.imovel_id===im.id&&p.mes_ref===mesAtual);
+    return pag&&pag.data_pag&&!pag.confirmado;
+  });
+  if(aguardando.length>0){
+    const contAg=document.getElementById('dash-inadimplentes');
+    const aviso=`<div style="background:rgba(96,180,255,0.1);border:1px solid rgba(96,180,255,0.3);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:12px">
+      <div style="font-weight:600;color:var(--info);margin-bottom:8px">🕐 ${aguardando.length} pagamento(s) aguardando sua confirmação</div>
+      ${aguardando.map(im=>{
+        const pag=cache.pagamentos.find(p=>p.imovel_id===im.id&&p.mesRef===mesAtual||p.mes_ref===mesAtual&&p.imovel_id===im.id);
+        return`<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:6px">
+          <span>${im.identificacao} · ${clienteNome(im.cliente_cod)}</span>
+          <button class="btn btn-sm" style="background:var(--success);color:#0f0f0f;padding:4px 12px" onclick="goTo('pagamentos')">Ver →</button>
+        </div>`;
+      }).join('')}
+    </div>`;
+    document.getElementById('dash-inadimplentes').innerHTML=aviso+(aguardando.length===0?'':'');
+  }
+  const inad=cache.imoveis.filter(im=>{
+    if(!im.cliente_cod) return false;
+    const pag=cache.pagamentos.find(p=>p.imovel_id===im.id&&p.mes_ref===mesAtual);
+    if(pag&&pag.data_pag) return false;
+    return new Date()>new Date(new Date().getFullYear(),new Date().getMonth(),im.vencimento);
+  });
+  cont.innerHTML=inad.length===0?'<div class="empty"><div class="icon">✅</div><p>Nenhum inadimplente!</p></div>':
+    inad.map(im=>{
+      const dias=Math.floor((new Date()-new Date(new Date().getFullYear(),new Date().getMonth(),im.vencimento))/86400000);
+      return`<div class="alert-row"><div class="info"><strong>${im.identificacao}</strong><br><span style="color:var(--muted);font-size:12px">${clienteNome(im.cliente_cod)}</span></div><div style="text-align:right"><div class="dias">${dias} dia(s)</div><div style="font-size:13px">${fmtMoeda(im.valor)}</div></div></div>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  CLIENTES
+// ═══════════════════════════════════════════════
+async function renderClientes(){
+  const busca=(document.getElementById('busca-clientes').value||'').toLowerCase();
+  let lista=cache.clientes.filter(c=>c.nome.toLowerCase().includes(busca)||c.codigo.toLowerCase().includes(busca)||c.cpf.includes(busca));
+  const tbody=document.getElementById('tbody-clientes');
+  if(lista.length===0){ tbody.innerHTML='<tr class="loading-row"><td colspan="7" style="color:var(--muted)">Nenhum cliente encontrado.</td></tr>'; return; }
+  tbody.innerHTML=lista.map(c=>`<tr>
+    <td><span class="code-badge">${c.codigo}</span></td>
+    <td><strong>${c.nome}</strong></td><td>${c.cpf}</td><td>${c.telefone||'—'}</td><td>${c.email||'—'}</td>
+    <td><span class="badge badge-${c.status==='ativo'?'ativo':'inativo'}">● ${c.status}</span></td>
+    <td><button class="btn btn-secondary btn-sm" onclick="abrirModalCliente(${c.id})">Editar</button>
+    <button class="btn btn-danger btn-sm" onclick="excluirCliente(${c.id})" style="margin-left:6px">Excluir</button></td>
+  </tr>`).join('');
+}
+
+function abrirModalCliente(id=null){
+  document.getElementById('edit-cliente-id').value='';
+  document.getElementById('modal-cliente-title').textContent='Novo Cliente';
+  ['nome','cpf','rg','telefone','email'].forEach(f=>document.getElementById('c-'+f).value='');
+  document.getElementById('c-datanasc').value=''; document.getElementById('c-status').value='ativo';
+  if(id!==null){
+    const c=cache.clientes.find(x=>x.id===id); if(!c) return;
+    document.getElementById('edit-cliente-id').value=id;
+    document.getElementById('modal-cliente-title').textContent='Editar Cliente';
+    document.getElementById('c-nome').value=c.nome; document.getElementById('c-cpf').value=c.cpf;
+    document.getElementById('c-rg').value=c.rg||''; document.getElementById('c-datanasc').value=c.data_nasc||'';
+    document.getElementById('c-telefone').value=c.telefone||''; document.getElementById('c-email').value=c.email||'';
+    document.getElementById('c-status').value=c.status;
+  }
+  abrirModal('modal-cliente');
+}
+
+async function salvarCliente(){
+  const nome=document.getElementById('c-nome').value.trim();
+  const cpf=document.getElementById('c-cpf').value.trim();
+  const dataNasc=document.getElementById('c-datanasc').value;
+  const telefone=document.getElementById('c-telefone').value.trim();
+  if(!nome||!cpf||!dataNasc||!telefone){ toast('Preencha os campos obrigatórios (*)','err'); return; }
+  const editId=document.getElementById('edit-cliente-id').value;
+  const body={ nome, cpf, rg:document.getElementById('c-rg').value, data_nasc:dataNasc,
+    telefone, email:document.getElementById('c-email').value, status:document.getElementById('c-status').value };
+  try{
+    if(editId){ await sbPatch('clientes',editId,body); toast('Cliente atualizado!'); }
+    else {
+      const total=cache.clientes.length;
+      const codigo='CLI-'+String(total+1).padStart(4,'0');
+      await sbPost('clientes',{...body,codigo});
+      toast('Cliente cadastrado!');
+    }
+    cache.clientes=await sbGet('clientes');
+    fecharModal('modal-cliente'); renderClientes();
+  }catch(e){ toast('Erro: '+e.message,'err'); }
+}
+
+async function excluirCliente(id){
+  if(!confirm('Deseja excluir este cliente?')) return;
+  try{ await sbDelete('clientes',id); cache.clientes=await sbGet('clientes'); renderClientes(); toast('Cliente removido.'); }
+  catch(e){ toast('Erro: '+e.message,'err'); }
+}
+
+// ═══════════════════════════════════════════════
+//  IMÓVEIS
+// ═══════════════════════════════════════════════
+function populaSelectClientes(selecionado=''){
+  const sel=document.getElementById('i-cliente');
+  sel.innerHTML='<option value="">— Sem morador —</option>';
+  cache.clientes.filter(c=>c.status==='ativo').forEach(c=>{
+    sel.innerHTML+=`<option value="${c.codigo}" ${c.codigo===selecionado?'selected':''}>${c.codigo} — ${c.nome}</option>`;
   });
 }
 
-function confirmarPagamento() {
-  if (!pagAtual) return;
-  const hoje = new Date().toISOString().slice(0,10);
-  const pag = db.pagamentos.find(p => p.imovelId === pagAtual.imovelId && p.mesRef === pagAtual.mes);
-  if (pag) {
-    pag.dataPag = hoje;
-    pag.valorPago = pagAtual.valor;
-    pag.forma = 'Pix';
-    pag.registradoEm = hoje;
-  } else {
-    db.pagamentos.push({
-      id: db.nextPag++, imovelId: pagAtual.imovelId, mesRef: pagAtual.mes,
-      dataPag: hoje, valorPago: pagAtual.valor, forma: 'Pix',
-      clienteCod: moradorLogado.codigo, registradoEm: hoje
-    });
+async function renderImoveis(){
+  const busca=(document.getElementById('busca-imoveis').value||'').toLowerCase();
+  let lista=cache.imoveis.filter(im=>im.identificacao.toLowerCase().includes(busca)||im.rua.toLowerCase().includes(busca)||im.bairro.toLowerCase().includes(busca));
+  const tbody=document.getElementById('tbody-imoveis');
+  if(lista.length===0){ tbody.innerHTML='<tr class="loading-row"><td colspan="7" style="color:var(--muted)">Nenhum imóvel encontrado.</td></tr>'; return; }
+  tbody.innerHTML=lista.map(im=>`<tr>
+    <td><span class="code-badge">IM-${String(im.id).padStart(4,'0')}</span></td>
+    <td><strong>${im.identificacao}</strong></td>
+    <td>${im.rua}, ${im.numero} — ${im.bairro}</td>
+    <td>${im.cliente_cod?`<span class="code-badge">${im.cliente_cod}</span> ${clienteNome(im.cliente_cod)}`:'<span style="color:var(--muted)">Vago</span>'}</td>
+    <td>${fmtMoeda(im.valor)}</td><td>Dia ${im.vencimento}</td>
+    <td><button class="btn btn-secondary btn-sm" onclick="abrirModalImovel(${im.id})">Editar</button>
+    <button class="btn btn-danger btn-sm" onclick="excluirImovel(${im.id})" style="margin-left:6px">Excluir</button></td>
+  </tr>`).join('');
+}
+
+function abrirModalImovel(id=null){
+  populaSelectClientes();
+  document.getElementById('edit-imovel-id').value='';
+  document.getElementById('modal-imovel-title').textContent='Novo Imóvel';
+  ['ident','bairro','rua','numero','valor','vencimento'].forEach(f=>document.getElementById('i-'+f).value='');
+  if(id!==null){
+    const im=cache.imoveis.find(x=>x.id===id); if(!im) return;
+    document.getElementById('edit-imovel-id').value=id;
+    document.getElementById('modal-imovel-title').textContent='Editar Imóvel';
+    document.getElementById('i-ident').value=im.identificacao; document.getElementById('i-bairro').value=im.bairro;
+    document.getElementById('i-rua').value=im.rua; document.getElementById('i-numero').value=im.numero;
+    document.getElementById('i-valor').value=im.valor; document.getElementById('i-vencimento').value=im.vencimento;
+    populaSelectClientes(im.cliente_cod||'');
   }
-  salvarDB();
-  fecharModal('modal-pix');
-  mostrarSucesso(pagAtual.mes, pagAtual.valor);
-  pagAtual = null;
+  abrirModal('modal-imovel');
 }
 
-function mostrarSucesso(mes, valor) {
-  const im = imovelLogado;
-  document.getElementById('comp-mini').innerHTML = `
-    <div class="comp-row"><span>Imóvel</span><span>${im.identificacao}</span></div>
-    <div class="comp-row"><span>Referência</span><span>${fmtMes(mes)}</span></div>
-    <div class="comp-row"><span>Forma</span><span>Pix</span></div>
-    <div class="comp-row"><span>Data</span><span>${fmtData(new Date().toISOString().slice(0,10))}</span></div>
-    <div class="comp-row"><span>Total pago</span><span style="color:var(--green)">${fmtMoeda(valor)}</span></div>
-  `;
-  abrirModal('modal-sucesso');
+async function salvarImovel(){
+  const ident=document.getElementById('i-ident').value.trim();
+  const bairro=document.getElementById('i-bairro').value.trim();
+  const rua=document.getElementById('i-rua').value.trim();
+  const numero=document.getElementById('i-numero').value.trim();
+  const valor=document.getElementById('i-valor').value;
+  const venc=document.getElementById('i-vencimento').value;
+  if(!ident||!bairro||!rua||!numero||!valor||!venc){ toast('Preencha os campos obrigatórios (*)','err'); return; }
+  const editId=document.getElementById('edit-imovel-id').value;
+  const body={ identificacao:ident, bairro, rua, numero, cliente_cod:document.getElementById('i-cliente').value||null, valor:Number(valor), vencimento:parseInt(venc) };
+  try{
+    if(editId){ await sbPatch('imoveis',editId,body); toast('Imóvel atualizado!'); }
+    else{ await sbPost('imoveis',body); toast('Imóvel cadastrado!'); }
+    cache.imoveis=await sbGet('imoveis');
+    fecharModal('modal-imovel'); renderImoveis();
+  }catch(e){ toast('Erro: '+e.message,'err'); }
 }
 
-function fecharSucesso() {
-  fecharModal('modal-sucesso');
-  renderPortal();
+async function excluirImovel(id){
+  if(!confirm('Deseja excluir este imóvel?')) return;
+  try{ await sbDelete('imoveis',id); cache.imoveis=await sbGet('imoveis'); renderImoveis(); toast('Imóvel removido.'); }
+  catch(e){ toast('Erro: '+e.message,'err'); }
 }
 
-function verComp(mes) {
-  const pag = db.pagamentos.find(p => p.imovelId === imovelLogado.id && p.mesRef === mes && p.dataPag);
-  if (!pag) return;
-  mostrarSucesso(mes, pag.valorPago);
+// ═══════════════════════════════════════════════
+//  PAGAMENTOS
+// ═══════════════════════════════════════════════
+let filtroAtual='todos';
+
+async function renderPagamentos(){
+  loading('tbody-pagamentos',9);
+  cache.pagamentos=await sbGet('pagamentos');
+  const mesAtual=new Date().toISOString().slice(0,7);
+  // Gerar automaticamente pendências do mês atual
+  for(const im of cache.imoveis){
+    if(!im.cliente_cod) continue;
+    const existe=cache.pagamentos.find(p=>p.imovel_id===im.id&&p.mes_ref===mesAtual);
+    if(!existe){
+      try{ const novo=await sbPost('pagamentos',{imovel_id:im.id,cliente_cod:im.cliente_cod,mes_ref:mesAtual}); cache.pagamentos.push(...novo); }catch(e){}
+    }
+  }
+  let lista=[...cache.pagamentos].reverse();
+  if(filtroAtual!=='todos') lista=lista.filter(p=>statusPagamento(p)===filtroAtual);
+  const tbody=document.getElementById('tbody-pagamentos');
+  if(lista.length===0){ tbody.innerHTML='<tr class="loading-row"><td colspan="9" style="color:var(--muted)">Nenhum registro.</td></tr>'; return; }
+  tbody.innerHTML=lista.map(p=>{
+    const im=cache.imoveis.find(x=>x.id===p.imovel_id);
+    const st=statusPagamento(p);
+    const [y,m]=p.mes_ref.split('-').map(Number);
+    const diaVenc=im?im.vencimento:10;
+    const vencStr=`${String(diaVenc).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}`;
+    return`<tr>
+      <td>${fmtMes(p.mes_ref)}</td>
+      <td>${im?im.identificacao:'—'}</td>
+      <td>${clienteNome(p.cliente_cod)}</td>
+      <td>${im?fmtMoeda(im.valor):'—'}</td>
+      <td>${vencStr}</td>
+      <td>${p.data_pag?fmtData(p.data_pag):'—'}</td>
+      <td>${p.forma||'—'}</td>
+      <td><span class="badge badge-${st}">● ${st}</span></td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        ${p.data_pag && p.confirmado ? `<button class="btn btn-secondary btn-sm" onclick="verComprovante(${p.id})">Comprovante</button>` : ''}
+        ${p.data_pag && !p.confirmado ? `
+          <button class="btn btn-primary btn-sm" onclick="confirmarRecebimento(${p.id})" style="background:var(--success);color:#0f0f0f">✔ Confirmar</button>
+          <button class="btn btn-secondary btn-sm" onclick="verComprovante(${p.id})">Ver</button>
+          <button class="btn btn-danger btn-sm" onclick="rejeitarPagamento(${p.id})">Rejeitar</button>
+        ` : ''}
+        ${!p.data_pag ? `<button class="btn btn-primary btn-sm" onclick="pagarAgora(${p.imovel_id},'${p.mes_ref}')">Pagar</button>` : ''}
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-// ──────────────────────────────────────────────
-//  MODAIS
-// ──────────────────────────────────────────────
-function abrirModal(id) { document.getElementById(id).classList.add('open'); }
-function fecharModal(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
-});
+function filtrarPag(tipo,el){ filtroAtual=tipo; document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); renderPagamentos(); }
 
-// ──────────────────────────────────────────────
+function abrirModalPagamento(){
+  const sel=document.getElementById('p-imovel');
+  sel.innerHTML='<option value="">Selecione o imóvel</option>';
+  cache.imoveis.filter(i=>i.cliente_cod).forEach(i=>{ sel.innerHTML+=`<option value="${i.id}">${i.identificacao} — ${clienteNome(i.cliente_cod)}</option>`; });
+  document.getElementById('p-mes').value=new Date().toISOString().slice(0,7);
+  document.getElementById('p-data').value=new Date().toISOString().slice(0,10);
+  document.getElementById('p-valor').value='';
+  document.getElementById('p-info-box').style.display='none';
+  abrirModal('modal-pagamento');
+}
+
+function pagarAgora(imovelId,mes){
+  const im=cache.imoveis.find(x=>x.id===imovelId);
+  document.getElementById('p-imovel').innerHTML=`<option value="${im.id}">${im.identificacao}</option>`;
+  document.getElementById('p-mes').value=mes;
+  document.getElementById('p-data').value=new Date().toISOString().slice(0,10);
+  document.getElementById('p-valor').value=im.valor;
+  preencherDadosPagamento();
+  abrirModal('modal-pagamento');
+}
+
+function preencherDadosPagamento(){
+  const id=parseInt(document.getElementById('p-imovel').value);
+  const box=document.getElementById('p-info-box');
+  if(!id){ box.style.display='none'; return; }
+  const im=cache.imoveis.find(x=>x.id===id); if(!im) return;
+  document.getElementById('p-valor').value=im.valor;
+  const multa=calcularMulta(id,document.getElementById('p-mes').value);
+  box.style.display='block';
+  box.innerHTML=`<strong style="color:var(--text)">${im.identificacao}</strong><br>Morador: ${clienteNome(im.cliente_cod)}<br>Aluguel base: <strong>${fmtMoeda(im.valor)}</strong><br>${multa>0?`<span style="color:var(--danger)">Multa+juros: ${fmtMoeda(multa)}</span><br>Total: <strong style="color:var(--danger)">${fmtMoeda(Number(im.valor)+multa)}</strong>`:'<span style="color:var(--success)">Sem acréscimos</span>'}`;
+}
+
+async function salvarPagamento(){
+  const imovelId=parseInt(document.getElementById('p-imovel').value);
+  const mesRef=document.getElementById('p-mes').value;
+  const dataPag=document.getElementById('p-data').value;
+  const valorPago=document.getElementById('p-valor').value;
+  const forma=document.getElementById('p-forma').value;
+  if(!imovelId||!mesRef||!dataPag||!valorPago){ toast('Preencha todos os campos!','err'); return; }
+  const im=cache.imoveis.find(x=>x.id===imovelId);
+  const existente=cache.pagamentos.find(p=>p.imovel_id===imovelId&&p.mes_ref===mesRef);
+  if(existente&&existente.data_pag){ toast('Pagamento já registrado para este mês!','err'); return; }
+  const body={ imovel_id:imovelId, cliente_cod:im.cliente_cod, mes_ref:mesRef, data_pag:dataPag, valor_pago:Number(valorPago), forma };
+  try{
+    let saved;
+    if(existente){ saved=await sbPatch('pagamentos',existente.id,body); saved=saved[0]; }
+    else{ const r=await sbPost('pagamentos',body); saved=r[0]; }
+    fecharModal('modal-pagamento');
+    cache.pagamentos=await sbGet('pagamentos');
+    renderPagamentos();
+    toast('Pagamento registrado! ✔');
+    setTimeout(()=>verComprovante(saved.id),300);
+  }catch(e){ toast('Erro: '+e.message,'err'); }
+}
+
+function verComprovante(id){
+  const p=cache.pagamentos.find(x=>x.id===id); if(!p||!p.data_pag) return;
+  const im=cache.imoveis.find(x=>x.id===p.imovel_id);
+  const cliente=cache.clientes.find(x=>x.codigo===p.cliente_cod);
+  const [y,m]=p.mes_ref.split('-').map(Number);
+  document.getElementById('comprovante-content').innerHTML=`<div class="comprovante" id="print-area">
+    <div class="comprovante-header"><h2>AluguelPRO</h2><p style="font-size:12px;margin-top:4px">Comprovante de Pagamento</p></div>
+    <div class="comprovante-row"><span>Imóvel</span><strong>${im?im.identificacao:'—'}</strong></div>
+    <div class="comprovante-row"><span>Endereço</span><strong>${im?`${im.rua}, ${im.numero} — ${im.bairro}`:'—'}</strong></div>
+    <div class="comprovante-row"><span>Morador</span><strong>${cliente?cliente.nome:'—'}</strong></div>
+    <div class="comprovante-row"><span>CPF</span><strong>${cliente?cliente.cpf:'—'}</strong></div>
+    <div class="comprovante-row"><span>Referência</span><strong>${fmtMes(p.mes_ref)}</strong></div>
+    <div class="comprovante-row"><span>Vencimento</span><strong>${String(im?im.vencimento:10).padStart(2,'0')}/${String(m).padStart(2,'0')}/${y}</strong></div>
+    <div class="comprovante-row"><span>Data do Pagamento</span><strong>${fmtData(p.data_pag)}</strong></div>
+    <div class="comprovante-row"><span>Forma de Pagamento</span><strong>${p.forma}</strong></div>
+    <div class="comprovante-total"><span>Total Pago</span><span style="color:#1a7a2e">${fmtMoeda(p.valor_pago)}</span></div>
+    <div style="text-align:center;font-size:11px;color:#888;margin-top:20px">Gerado em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</div>
+  </div>`;
+  abrirModal('modal-comprovante');
+}
+
+function imprimirComprovante(){
+  const conteudo=document.getElementById('print-area').innerHTML;
+  const j=window.open('','_blank');
+  j.document.write(`<html><head><title>Comprovante</title><link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"><style>body{font-family:'DM Sans',sans-serif;padding:30px;max-width:500px;margin:auto}h2{font-family:'Syne',sans-serif}</style></head><body>${conteudo}<script>window.onload=()=>window.print()<\/script></body></html>`);
+  j.document.close();
+}
+
+// ═══════════════════════════════════════════════
+//  RELATÓRIOS
+// ═══════════════════════════════════════════════
+async function renderRelatorios(){
+  await recarregar();
+  const mesAtual=new Date().toISOString().slice(0,7);
+  const relIm=document.getElementById('rel-imoveis');
+  relIm.innerHTML=cache.imoveis.length===0?'<div class="empty"><div class="icon">🏠</div><p>Nenhum imóvel.</p></div>':
+    cache.imoveis.map(im=>{
+      const pag=cache.pagamentos.find(p=>p.imovel_id===im.id&&p.mes_ref===mesAtual);
+      let st=im.cliente_cod?(pag&&pag.data_pag?'pago':statusPagamento(pag||{imovel_id:im.id,mes_ref:mesAtual})):'vago';
+      return`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+        <div><strong>${im.identificacao}</strong><br><span class="text-muted">${im.rua}, ${im.numero} — ${im.bairro}</span></div>
+        <div style="text-align:right"><div>${fmtMoeda(im.valor)}</div><span class="badge badge-${st==='vago'?'inativo':st}">● ${st}</span></div>
+      </div>`;
+    }).join('');
+  const pagos=cache.pagamentos.filter(p=>p.data_pag).slice(-10).reverse();
+  const relH=document.getElementById('rel-historico');
+  relH.innerHTML=pagos.length===0?'<div class="empty"><div class="icon">📋</div><p>Nenhum pagamento.</p></div>':
+    pagos.map(p=>{ const im=cache.imoveis.find(x=>x.id===p.imovel_id);
+      return`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px">
+        <div><strong>${im?im.identificacao:'—'}</strong> · ${fmtMes(p.mes_ref)}<br><span class="text-muted">${clienteNome(p.cliente_cod)}</span></div>
+        <div style="text-align:right"><strong style="color:var(--success)">${fmtMoeda(p.valor_pago)}</strong><br><span class="text-muted">${fmtData(p.data_pag)}</span></div>
+      </div>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  CONFIGURAÇÕES PIX
+// ═══════════════════════════════════════════════
+let tipoPix='';
+
+function selecionarTipoPix(tipo,el){
+  tipoPix=tipo;
+  document.querySelectorAll('.pix-tipo-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  const labels={cpf:'CPF ou CNPJ',telefone:'Telefone (com DDD)',email:'E-mail',aleatoria:'Chave Aleatória'};
+  const phs={cpf:'000.000.000-00',telefone:'(85) 99999-9999',email:'email@exemplo.com',aleatoria:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'};
+  document.getElementById('cfg-pix-chave-label').textContent=labels[tipo]+' *';
+  document.getElementById('cfg-pix-chave').placeholder=phs[tipo]||'Digite a chave';
+  document.getElementById('cfg-pix-chave').value='';
+  atualizarPreviewPix();
+}
+
+function atualizarPreviewPix(){
+  const nome=document.getElementById('cfg-pix-nome').value.trim();
+  const banco=document.getElementById('cfg-pix-banco').value.trim();
+  const chave=document.getElementById('cfg-pix-chave').value.trim();
+  const tipoLabels={cpf:'CPF/CNPJ',telefone:'Telefone',email:'E-mail',aleatoria:'Aleatória','':'—'};
+  document.getElementById('prev-nome').textContent=nome||'—';
+  document.getElementById('prev-banco').textContent=banco||'—';
+  document.getElementById('prev-tipo').textContent=tipoLabels[tipoPix]||'—';
+  document.getElementById('prev-chave').textContent=chave||'—';
+  const st=document.getElementById('prev-status');
+  st.innerHTML=nome&&chave&&tipoPix?'<span class="pix-status-badge pix-status-ok">✔ Configurado corretamente</span>':'<span class="pix-status-badge pix-status-empty">⚠ Preencha todos os campos</span>';
+}
+
+async function salvarConfigPix(){
+  const nome=document.getElementById('cfg-pix-nome').value.trim();
+  const banco=document.getElementById('cfg-pix-banco').value.trim();
+  const chave=document.getElementById('cfg-pix-chave').value.trim();
+  if(!nome||!chave||!tipoPix){ toast('Preencha nome, tipo e chave Pix!','err'); return; }
+  const cfg=JSON.stringify({nome,banco,chave,tipo:tipoPix});
+  try{
+    // Salvar no Supabase (tabela configuracoes)
+    const existe=await sbGet('configuracoes','chave=eq.pix_config');
+    if(existe.length>0) await sbPatch('configuracoes',existe[0].id,{chave:'pix_config',valor:cfg});
+    else await sbPost('configuracoes',{chave:'pix_config',valor:cfg});
+    toast('Chave Pix salva no banco de dados! ✔');
+    renderStatusIntegracao();
+  }catch(e){ toast('Erro ao salvar: '+e.message,'err'); }
+}
+
+async function carregarConfigPix(){
+  try{
+    const r=await sbGet('configuracoes','chave=eq.pix_config');
+    if(r.length>0){
+      const cfg=JSON.parse(r[0].valor);
+      document.getElementById('cfg-pix-nome').value=cfg.nome||'';
+      document.getElementById('cfg-pix-banco').value=cfg.banco||'';
+      document.getElementById('cfg-pix-chave').value=cfg.chave||'';
+      if(cfg.tipo){ tipoPix=cfg.tipo; document.querySelectorAll('.pix-tipo-btn').forEach(b=>{ if(b.getAttribute('onclick').includes("'"+cfg.tipo+"'")) b.classList.add('selected'); }); }
+      atualizarPreviewPix();
+    }
+  }catch(e){}
+  renderStatusIntegracao();
+}
+
+function salvarConfigFinanceira(){
+  const multa=document.getElementById('cfg-multa').value;
+  const juros=document.getElementById('cfg-juros').value;
+  localStorage.setItem('aluguel_pro_financeiro',JSON.stringify({multa:Number(multa),juros:Number(juros)}));
+  toast('Regras de cobrança salvas! ✔');
+}
+
+function carregarConfigFinanceira(){
+  try{ const s=localStorage.getItem('aluguel_pro_financeiro'); if(s){ const c=JSON.parse(s); document.getElementById('cfg-multa').value=c.multa??2; document.getElementById('cfg-juros').value=c.juros??0.033; } }catch(e){}
+}
+
+function renderStatusIntegracao(){
+  const el=document.getElementById('integracao-status'); if(!el) return;
+  const clientes=cache.clientes.filter(c=>c.status==='ativo').length;
+  const imoveis=cache.imoveis.filter(i=>i.cliente_cod).length;
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)"><span style="color:var(--muted)">Banco de dados</span><span class="badge badge-pago">✔ Supabase</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)"><span style="color:var(--muted)">Moradores ativos</span><span style="font-weight:600;color:var(--accent)">${clientes}</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:10px 14px;background:var(--surface2);border-radius:var(--radius-sm)"><span style="color:var(--muted)">Imóveis ocupados</span><span style="font-weight:600;color:var(--accent)">${imoveis}</span></div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  CONFIRMAÇÃO DE RECEBIMENTO
+// ═══════════════════════════════════════════════
+async function confirmarRecebimento(id){
+  if(!confirm('Confirmar que o Pix foi recebido e o pagamento está OK?')) return;
+  try{
+    await sbPatch('pagamentos',id,{confirmado:true});
+    cache.pagamentos=await sbGet('pagamentos');
+    renderPagamentos();
+    toast('Pagamento confirmado! ✔');
+  }catch(e){ toast('Erro: '+e.message,'err'); }
+}
+
+async function rejeitarPagamento(id){
+  if(!confirm('Rejeitar este pagamento? O status voltará para pendente.')) return;
+  try{
+    await sbPatch('pagamentos',id,{data_pag:null,valor_pago:null,forma:null,confirmado:null});
+    cache.pagamentos=await sbGet('pagamentos');
+    renderPagamentos();
+    toast('Pagamento rejeitado. Status voltou para pendente.');
+  }catch(e){ toast('Erro: '+e.message,'err'); }
+}
+
+// ═══════════════════════════════════════════════
 //  INIT
-// ──────────────────────────────────────────────
-carregarDB();
+// ═══════════════════════════════════════════════
+(function(){
+  try{
+    const saved=localStorage.getItem('aluguel_supabase');
+    if(saved){ const c=JSON.parse(saved); SB_URL=c.url; SB_KEY=c.key; document.getElementById('setup-overlay').style.display='none'; inicializar(); }
+    else{ document.getElementById('db-dot').className='dot off'; document.getElementById('db-label').textContent='Não conectado'; }
+  }catch(e){}
+})();
 </script>
 </body>
 </html>
